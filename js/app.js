@@ -292,13 +292,18 @@ function render(quiet) {
     cur = { b: nb, id: ni };
     if (ni !== prev.id && "speechSynthesis" in window) speechSynthesis.cancel();
     const tt = t(), A = $("#app");
+    if (nb !== prev.b || ni !== prev.id) {
+        A.classList.remove("scan");
+        void A.offsetWidth;
+        A.classList.add("scan")
+    }
     document.documentElement.lang = lang === "pt" ? "pt-BR" : "en";
     document.querySelectorAll("[data-t]").forEach(e => e.textContent = tt[e.dataset.t]);
     $("#h1").lang = "pt-BR";
     $("#lp").setAttribute("aria-pressed", lang === "pt");
     $("#le").setAttribute("aria-pressed", lang === "en");
     $("#hint").textContent = tt.hint;
-    $("#hubb").innerHTML = BODIES.map(k => {
+    $("#hubb").innerHTML = `<svg class="cl cl-d" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><polyline points="16,68 38,36 62,62 84,30"/></svg><svg class="cl cl-m" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><polyline points="28,12 72,36 28,62 72,88"/></svg>` + BODIES.map(k => {
         const n = ITEMS.filter(i => i.corpo === k).length;
         return `<button class="p pl" data-b="${k}"><span class="orb" style="background:${ORB[k]}"></span><b>${tt.nm[k]}</b><small>${n} ${n===1?tt.item:tt.items}</small></button>`
     }).join("");
@@ -466,6 +471,7 @@ function about() {
 }
 $("#ad").onclick = about;
 $("#fd").onclick = about;
+$("#app").addEventListener("animationend", e => { if (e.animationName === "scan") e.currentTarget.classList.remove("scan") });
 addEventListener("resize", draw);
 addEventListener("hashchange", () => render());
 fetch("data/items.json")
