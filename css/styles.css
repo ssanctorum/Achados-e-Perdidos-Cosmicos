@@ -562,22 +562,15 @@ html.hc #app::after {
     display: none;
 }
 
-/* Imagens nos cards (NASA) */
-.card-img {
-  margin: 0.6rem 0 0.8rem;
-  border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid var(--bd);
-  background: #000;
+#card { padding: 0; }
+.card-bg {
+  position: sticky; top: 0; height: 190px; margin-bottom: -90px;
+  background: #0b1224 center / cover no-repeat; z-index: 0;
 }
-.card-img img {
-  display: block;
-  width: 100%;
-  max-height: 180px;
-  object-fit: cover;
+.card-bg.is-model { background-size: contain; background-color: #0b1224; }
+.card-body {
+  position: relative; z-index: 1; padding: 100px 14px 14px 18px;
+  background: linear-gradient(to bottom, rgba(8,12,24,0) 0, rgba(8,12,24,.78) 70px, rgba(8,12,24,.94) 130px);
 }
-.card-img figcaption {
-  font-size: 0.7rem;
-  opacity: 0.7;
-  padding: 0.25rem 0.5rem;
-}
+html.hc .card-bg { display: none; }
+html.hc .card-body { background: #000; padding-top: 14px; }

@@ -518,8 +518,7 @@ const globeOff = () => (currentMode === "body" && bodyGlobe ? bodyGlobe.rotation
 function recolorMarkers(id) {
   markers.forEach(m => {
     const on = m.userData.id === id;
-    m.scale.setScalar(on ? 1.6 : 1);
-    m.material.color.setHex(on ? 0xff9a3c : (hc ? 0xffffff : 0xe8f4ff));
+    m.scale.setScalar(on ? 1.25 : 1);
     if (m.userData.ring) m.userData.ring.visible = on;
   });
   needsRender = true;
@@ -659,21 +658,23 @@ function buildBody(body) {
   markers = [];
   const its = ITEMS.filter(i => i.corpo === body && i.lat != null);
   its.forEach(it => {
-    const p = latLngToVec(it.lat, it.lng, R * 1.02);
-    const m = new THREE.Mesh(
-      new THREE.SphereGeometry(0.03, 12, 10),
-      new THREE.MeshBasicMaterial({ color: 0xe8f4ff })
-    );
+    const p = latLngToVec(it.lat, it.lng, R * 1.005);
+    const m = new THREE.Group();
+    const model = ItemModels.build(it.id, hc);
+    model.scale.setScalar(0.15);
+    m.add(model);
     m.position.copy(p);
-    m.userData = { id: it.id };
+    // "em pé" na superfície: o eixo +Y do modelo aponta para fora do globo
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), p.clone().normalize());
+    m.userData = { id: it.id, model };
     const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(0.04, 0.005, 8, 24),
+      new THREE.TorusGeometry(0.09, 0.006, 8, 32),
       new THREE.MeshBasicMaterial({ color: 0xff9a3c })
     );
-    ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), p.clone().normalize());
+    ring.rotation.x = Math.PI / 2;
     m.add(ring);
     m.userData.ring = ring;
-    globe.add(m); // child of the globe: the pin rotates with the planet
+    globe.add(m); // filho do globo: gira junto com o planeta
     markers.push(m);
   });
   recolorMarkers(cur.id);
@@ -764,10 +765,14 @@ function buildDeep() {
 
   const its = ITEMS.filter(i => i.corpo === "espaco");
   markers = [];
-  its.forEach((it, i) => {
-    const a = (-40 + i * (80 / Math.max(1, its.length - 1))) * rad;
+  const eps = 23.44 * rad;
+  its.forEach(it => {
+    // direção real aproximada (RA/Dec) convertida para coordenadas eclípticas
+    const ra = (it.ra_h || 0) * 15 * rad, de = (it.dec_deg || 0) * rad;
+    const xe = Math.cos(de) * Math.cos(ra), ye = Math.cos(de) * Math.sin(ra), ze = Math.sin(de);
+    const xc = xe, yc = ye * Math.cos(eps) + ze * Math.sin(eps), zc = -ye * Math.sin(eps) + ze * Math.cos(eps);
     const r = Math.sqrt(Math.max(0.5, it.distancia_ua) / 180) * 9;
-    const pos = new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r);
+    const pos = new THREE.Vector3(xc * r, zc * r, -yc * r);
     const on = it.id === cur.id;
 
     const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), pos]);
@@ -777,7 +782,16 @@ function buildDeep() {
       opacity: on ? 1 : 0.55
     })));
 
-    const m = makeProbe(it.id, on);
+    const m = new THREE.Group();
+    const model = ItemModels.build(it.id, hc);
+    model.scale.setScalar(on ? 1.7 : 1.2);
+    model.position.y = -0.4;
+    m.add(model);
+    if (on) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.025, 8, 32), new THREE.MeshBasicMaterial({ color: 0xff9a3c }));
+      ring.rotation.x = Math.PI / 2;
+      m.add(ring);
+    }
     m.position.copy(pos);
     m.userData = { id: it.id };
     deepGroup.add(m);
@@ -881,19 +895,33 @@ function cardHtml(it) {
   const hs = g(it, "historia")
     .replace(/(O que é:|O que descobriu:|Onde está hoje:|What it is:|What it found:|Where it is today:)/g, "<br><b>$1</b>")
     .replace(/^<br>/, "");
-  const img = it.imagem
-    ? `<figure class="card-img"><img src="${it.imagem}" alt="${it.nome}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><figcaption>NASA / domínio público</figcaption></figure>`
-    : "";
-  let x = `<h2 id="ct">${it.nome}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small>${img}<p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
+  const img = `<div class="card-bg" aria-hidden="true" data-img="${it.imagem || ""}" data-id="${it.id}"></div>`;
+  let x = `${img}<div class="card-body"><h2 id="ct">${it.nome}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
   if (g(it, "por_que_ficou")) x += `<p><b>${t().why}:</b> ${g(it, "por_que_ficou")}</p>`;
   if (it.lat != null) x += `<p>${fmtC(it.lat, it.lng)}<small>${t().pos}</small></p>`;
   if (d) x += `<p><b>${t().dist}:</b> ${nf(it.distancia_ua.toFixed(1))} UA (${it.data_distancia}) · ${t().sig} ${nf(Math.round(it.distancia_ua * 8.317 / 60))} h</p>`;
   const rl = (it.relacionados || []).map(r => ITEMS.find(i => i.id === r)).filter(Boolean);
   if (rl.length) x += `<p><b>${t().rel}:</b></p><div class="row">${rl.map(r => `<button data-go="${r.corpo}/${r.id}">${r.nome}</button>`).join("")}</div>`;
-  return x + `<div class="row"><button id="ls">${t().listen}</button><button id="cl">${t().close}</button></div>`;
+  return x + `<div class="row"><button id="ls">${t().listen}</button><button id="cl">${t().close}</button></div></div>`;
 }
 
 const up = () => { location.hash = cur.id ? "#" + cur.b : ""; };
+
+// Foto da NASA de fundo; se não carregar (ou não existir), usa o modelinho 3D do item
+function setCardBg(el) {
+  if (!el) return;
+  const fallback = () => {
+    const u = ItemModels.thumb(el.dataset.id, hc);
+    if (u) { el.style.backgroundImage = `url(${u})`; el.classList.add("is-model"); }
+  };
+  const url = el.dataset.img;
+  if (!url) return fallback();
+  const im = new Image();
+  im.referrerPolicy = "no-referrer";
+  im.onload = () => { el.style.backgroundImage = `url(${url})`; };
+  im.onerror = fallback;
+  im.src = url;
+}
 
 function draw() {
   // Route to the correct Three.js scene
@@ -971,6 +999,7 @@ function render(quiet) {
   if (it) {
     K.lang = lang;
     K.innerHTML = cardHtml(it);
+    setCardBg(K.querySelector(".card-bg"));
     $("#cl").onclick = up;
     const L = $("#ls");
     if (!("speechSynthesis" in window)) L.hidden = true;
@@ -994,10 +1023,16 @@ function render(quiet) {
     if (nb && nb !== "espaco") cam = { lat: DV[nb][0], lng: DV[nb][1], k: 1 };
     draw();
   }
-  if (it && it.lat != null && (nb !== prev.b || ni !== prev.id)) fly(it.lat, it.lng + globeOff(), 2.4);
+  if (it && it.lat != null && (nb !== prev.b || ni !== prev.id)) fly(it.lat, it.lng + globeOff(), 1.25);
   else if (nb && nb !== "espaco" && (prev.id || nb !== prev.b) && !it) fly(DV[nb][0], DV[nb][1], 1);
   else draw();
   if (currentMode === "body") recolorMarkers(ni);
+
+  // Espaço profundo: gira a câmera para enquadrar a sonda escolhida (à direita do card)
+  if (it && nb === "espaco" && ni !== prev.id) {
+    const m = markers.find(q => q.userData.id === ni);
+    if (m) { drag.deepAngle = Math.atan2(m.position.x, m.position.z) - 0.2; applyDeepCam(); }
+  }
 
   libras();
   if (!quiet) {

@@ -284,7 +284,9 @@
     ],
     "fonte": "https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA17036/PIA17036~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA17036/PIA17036~medium.jpg",
+    "ra_h": 17.2,
+    "dec_deg": 12.4
   },
   {
     "id": "voyager2",
@@ -309,7 +311,9 @@
     ],
     "fonte": "https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA18182/PIA18182~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA18182/PIA18182~medium.jpg",
+    "ra_h": 20.0,
+    "dec_deg": -58.0
   },
   {
     "id": "pioneer10",
@@ -335,7 +339,9 @@
     ],
     "fonte": "https://science.nasa.gov/mission/pioneer-10/",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA00074/PIA00074~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA00074/PIA00074~medium.jpg",
+    "ra_h": 4.6,
+    "dec_deg": 16.5
   },
   {
     "id": "pioneer11",
@@ -360,7 +366,9 @@
     ],
     "fonte": "https://science.nasa.gov/mission/pioneer-11/",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA00503/PIA00503~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA00503/PIA00503~medium.jpg",
+    "ra_h": 19.1,
+    "dec_deg": -8.0
   },
   {
     "id": "genesis",
