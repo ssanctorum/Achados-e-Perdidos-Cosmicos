@@ -32,6 +32,10 @@ const T = {
         note: "Coordenadas aproximadas: fontes e épocas diferentes podem variar em alguns quilômetros.",
         pend: "pendente",
         scr: "Tela atual",
+        stop: "Parar",
+        why: "Por que ficou",
+        rel: "Relacionados",
+        err: "Não foi possível carregar os dados. Abra por um servidor (ex.: python3 -m http.server).",
         st: { ativo: "Ativo", silencioso: "Silencioso", "concluído": "Concluído" },
         nm: { terra: "Terra", lua: "Lua", marte: "Marte", espaco: "Espaço profundo" },
         E: "L",
@@ -62,13 +66,17 @@ const T = {
         note: "Approximate coordinates: different sources and epochs may differ by a few kilometers.",
         pend: "pending",
         scr: "Current screen",
+        stop: "Stop",
+        why: "Why it stayed",
+        rel: "Related",
+        err: "Could not load the data. Open through a server (e.g. python3 -m http.server).",
         st: { ativo: "Active", silencioso: "Silent", "concluído": "Completed" },
         nm: { terra: "Earth", lua: "Moon", marte: "Mars", espaco: "Deep space" },
         E: "E",
         W: "W"
     }
 };
-let lang = ls("lang") || ((navigator.language || "pt").startsWith("en") ? "en" : "pt"), hc = ls("hc") === "1" || matchMedia("(prefers-contrast: more)").matches, calm = ls("calm") === "1" || matchMedia("(prefers-reduced-motion: reduce)").matches;
+let lang = ls("lang") || ((navigator.language || "pt").startsWith("en") ? "en" : "pt"), pref = (k, q) => { const v = ls(k); return v == null ? matchMedia(q).matches : v === "1" }, hc = pref("hc", "(prefers-contrast: more)"), calm = pref("calm", "(prefers-reduced-motion: reduce)");
 let cur = { b: "", id: "" }, last = { b: "", id: "" }, cam = { lat: 15, lng: 0, k: 1 }, tw, pins = [];
 const t = () => T[lang], g = (it, k) => it[k + "_" + lang], nf = n => lang === "pt" ? String(n).replace(".", ",") : String(n);
 const ORB = {
@@ -106,6 +114,9 @@ const BL = {
     ]
 };
 const DV = { terra: [15, -45], lua: [8, 0], marte: [5, -20] };
+const PAL = () => hc
+    ? { ring: "#fff", sun: "#ffb000", ln: "#fff", on: "#ffb000", off: "#fff", txt: "#fff", edge: "#000", grid: null, lw: 3, pr: 3 }
+    : { ring: "#3fd0ff55", sun: "#ffd166", ln: "#3fd0ff88", on: "#ff9a3c", off: "#e8f4ff", txt: "#e8f4ff", edge: "#050b1f", grid: "#ffffff26", lw: 1, pr: 2 };
 const cv = $("#cv"), ctx = cv.getContext("2d");
 function proj(la, lo, c) {
     const p = la * rad, l = (lo - c.lng) * rad, p0 = c.lat * rad, v = Math.sin(p0) * Math.sin(p) + Math.cos(p0) * Math.cos(p) * Math.cos(l);
@@ -147,36 +158,37 @@ function draw() {
     ctx.setTransform(dp, 0, 0, dp, 0, 0);
     ctx.clearRect(0, 0, w, h);
     pins = [];
-    const b = cur.b;
+    const b = cur.b, P = PAL();
     if (!b) return;
     const m = w < 700, its = ITEMS.filter(i => i.corpo === b);
     if (b === "espaco") {
         const sx = w * .16, sy = m ? h * .35 : h / 2, Rm = Math.min(w * .7, h * .7);
-        ctx.strokeStyle = "#3fd0ff55";
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = P.ring;
+        ctx.lineWidth = P.lw;
         [.06, .1, .15, .2].forEach(r => {
             ctx.beginPath();
             ctx.arc(sx, sy, r * Rm, 0, 7);
             ctx.stroke()
         });
-        ctx.fillStyle = "#ffd166";
+        ctx.fillStyle = P.sun;
         ctx.beginPath();
         ctx.arc(sx, sy, 11, 0, 7);
         ctx.fill();
         ctx.font = "13px system-ui";
         its.forEach((it, i) => {
             const a = (-40 + i * (80 / Math.max(1, its.length - 1))) * rad, r = Math.sqrt(it.distancia_ua / 180) * Rm, x = sx + Math.cos(a) * r, y = sy + Math.sin(a) * r, on = it.id === cur.id;
-            ctx.strokeStyle = on ? "#ff9a3c" : "#3fd0ff88";
-            ctx.lineWidth = on ? 3 : 1;
+            ctx.strokeStyle = on ? P.on : P.ln;
+            ctx.lineWidth = on ? 3 + P.pr : P.lw;
             ctx.beginPath();
             ctx.moveTo(sx, sy);
             ctx.lineTo(x, y);
             ctx.stroke();
-            ctx.fillStyle = on ? "#ff9a3c" : "#e8f4ff";
+            ctx.fillStyle = on ? P.on : P.off;
             ctx.beginPath();
             ctx.arc(x, y, on ? 8 : 5, 0, 7);
             ctx.fill();
-            ctx.fillText(it.nome, x + 10, y - 8);
+            ctx.fillStyle = P.txt;
+            ctx.fillText(it.nome, Math.min(x + 10, w - ctx.measureText(it.nome).width - 8), y - 8);
             pins.push([x, y, it.id])
         });
         return
@@ -198,7 +210,8 @@ function draw() {
         ctx.fillStyle = col;
         l.forEach(([la, lo, r]) => blob(la, lo, r, c))
     });
-    ctx.strokeStyle = "#ffffff26";
+    if (P.grid) {
+    ctx.strokeStyle = P.grid;
     ctx.lineWidth = 1;
     for (let la = -60; la <= 60; la += 30) line(Array.from({ length: 37 }, (_, i) => [
         la,
@@ -208,9 +221,10 @@ function draw() {
         -90 + i * 10,
         lo
     ]), c);
+    }
     ctx.restore();
-    ctx.strokeStyle = "#3fd0ff";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = hc ? "#fff" : "#3fd0ff";
+    ctx.lineWidth = 2 + P.pr - 2;
     ctx.beginPath();
     ctx.arc(c.cx, c.cy, c.R, 0, 7);
     ctx.stroke();
@@ -219,15 +233,15 @@ function draw() {
         const [x, y, v] = proj(it.lat, it.lng, c);
         if (!v) return;
         const on = it.id === cur.id;
-        ctx.fillStyle = on ? "#ff9a3c" : "#fff";
-        ctx.strokeStyle = on ? "#fff" : "#050b1f";
-        ctx.lineWidth = 2;
+        ctx.fillStyle = on ? P.on : "#fff";
+        ctx.strokeStyle = on ? "#fff" : P.edge;
+        ctx.lineWidth = 2 + P.pr - 2 + (hc ? 1 : 0);
         ctx.beginPath();
         ctx.arc(x, y, on ? 9 : 6, 0, 7);
         ctx.fill();
         ctx.stroke();
         if (on) {
-            ctx.strokeStyle = "#ff9a3c";
+            ctx.strokeStyle = P.on;
             ctx.beginPath();
             ctx.arc(x, y, 15, 0, 7);
             ctx.stroke()
@@ -253,8 +267,11 @@ const fmtC = (la, lo) => `${nf(Math.abs(la).toFixed(1))}° ${la>=0?"N":"S"}, ${n
 function cardHtml(it) {
     const d = it.corpo === "espaco", hs = g(it, "historia").replace(/(O que é:|O que descobriu:|Onde está hoje:|What it is:|What it found:|Where it is today:)/g, "<br><b>$1</b>").replace(/^<br>/, "");
     let x = `<h2 id="ct">${it.nome}</h2><small>${t().st[it.status]||it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it,"descricao_visual")}</p><p><b>${t().last}:</b> ${g(it,"ultimo_sinal")}</p>`;
+    if (g(it, "por_que_ficou")) x += `<p><b>${t().why}:</b> ${g(it,"por_que_ficou")}</p>`;
     if (it.lat != null) x += `<p>${fmtC(it.lat,it.lng)}<small>${t().pos}</small></p>`;
     if (d) x += `<p><b>${t().dist}:</b> ${nf(it.distancia_ua.toFixed(1))} UA (${it.data_distancia}) · ${t().sig} ${nf(Math.round(it.distancia_ua*8.317/60))} h</p>`;
+    const rl = (it.relacionados || []).map(r => ITEMS.find(i => i.id === r)).filter(Boolean);
+    if (rl.length) x += `<p><b>${t().rel}:</b></p><div class="row">${rl.map(r => `<button data-go="${r.corpo}/${r.id}">${r.nome}</button>`).join("")}</div>`;
     return x + `<div class="row"><button id="ls">${t().listen}</button><button id="cl">${t().close}</button></div>`
 }
 const up = () => { location.hash = cur.id ? "#" + cur.b : "" };
@@ -263,6 +280,7 @@ function render(quiet) {
     const nb = BODIES.includes(b) ? b : "", ni = it ? id : "";
     const prev = { ...cur };
     cur = { b: nb, id: ni };
+    if (ni !== prev.id && "speechSynthesis" in window) speechSynthesis.cancel();
     const tt = t(), A = $("#app");
     document.documentElement.lang = lang === "pt" ? "pt-BR" : "en";
     document.querySelectorAll("[data-t]").forEach(e => e.textContent = tt[e.dataset.t]);
@@ -300,9 +318,16 @@ function render(quiet) {
                 S.cancel();
                 return
             }
-            const u = new SpeechSynthesisUtterance(it.nome + ". " + g(it, "historia") + " " + g(it, "descricao_visual"));
+            const u = new SpeechSynthesisUtterance([it.nome, g(it, "historia"), g(it, "descricao_visual"), t().last + ": " + g(it, "ultimo_sinal")].join(". "));
             u.lang = lang === "pt" ? "pt-BR" : "en-US";
+            const done = () => { L.textContent = t().listen };
+            u.onend = u.onerror = done;
+            L.textContent = t().stop;
             S.speak(u)
+        }
+        K.onclick = e => {
+            const x = e.target.closest("[data-go]");
+            if (x) location.hash = "#" + x.dataset.go
         }
     }
     if (nb !== prev.b) {
@@ -311,7 +336,7 @@ function render(quiet) {
         }
         draw()
     }
-    if (it && it.lat != null) fly(it.lat, it.lng, 2.4);
+    if (it && it.lat != null && (nb !== prev.b || ni !== prev.id)) fly(it.lat, it.lng, 2.4);
     else if (nb && nb !== "espaco" && (prev.id || nb !== prev.b) && !it) fly(DV[nb][0], DV[nb][1], 1);
     else draw();
     if (!quiet) {
@@ -349,6 +374,7 @@ document.addEventListener("keydown", e => {
 const setLang = l => {
     lang = l;
     ls("lang", l);
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
     render(true)
 };
 $("#lp").onclick = () => setLang("pt");
@@ -396,5 +422,10 @@ fetch("data/items.json")
         render();
     })
     .catch(() => {
-        $("#live").textContent = "Erro ao carregar data/items.json. Abra por um servidor (ex.: python3 -m http.server).";
+        const m = t().err;
+        $("#live").textContent = m;
+        $("#err").textContent = m;
+        $("#err").hidden = false;
+        $("#hint").hidden = true;
+        document.querySelectorAll("[data-t]").forEach(e => e.textContent = t()[e.dataset.t]);
     });
