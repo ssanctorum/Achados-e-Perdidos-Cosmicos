@@ -5,7 +5,7 @@ const $ = s => document.querySelector(s), ls = (k, v) => {
 const BODIES = ["terra", "lua", "marte", "espaco"], rad = Math.PI / 180;
 const T = {
   pt: {
-    back: "Voltar", all: "Tudo", hint: "Toque num planeta para explorar. Arraste para girar.", hreset: "Restaurar vista",
+    back: "Voltar", all: "Tudo", hint: "Toque num planeta para explorar. Arraste para girar. \nZoom com scroll e movimento de pinça.", hreset: "Restaurar vista",
     items: "itens", item: "item", list: "Itens deixados", close: "Fechar", listen: "Ouvir",
     ttl: "Achados e Perdidos Cósmicos",
     acc: "Acessibilidade", hc: "Alto contraste", calm: "Modo calmo (sem movimento nem brilho)",
@@ -26,7 +26,7 @@ const T = {
     E: "L", W: "O"
   },
   en: {
-    back: "Back", all: "All", hint: "Tap a planet to explore. Drag to rotate.", hreset: "Reset view",
+    back: "Back", all: "All", hint: "Tap a planet to explore. Drag to rotate. \nPinch to zoom.", hreset: "Reset view",
     items: "items", item: "item", list: "Items left behind", close: "Close", listen: "Listen",
     ttl: "Cosmic Lost & Found",
     acc: "Accessibility", hc: "High contrast", calm: "Calm mode (no motion or glow)",
@@ -572,9 +572,6 @@ function placeHubButtons(positions, sizes) {
   followMoonButton(true);
 }
 
-// Escolhe o lado de cada legenda (baixo, cima, direita, esquerda ou canto) com a menor
-// sobreposição com outras legendas, com os anéis dos corpos e com as bordas da tela.
-// Se ainda não couber, mostra só o nome (a contagem segue disponível para leitores de tela).
 function layoutLabels() {
   const w = cv.clientWidth, h = cv.clientHeight, top = h * 0.14, bot = h * 0.9;
   const btn = k => $(`#hubb [data-b="${k}"]`), H = [...document.querySelectorAll("#hubb .pl")];
