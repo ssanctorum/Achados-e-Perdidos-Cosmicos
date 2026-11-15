@@ -83,7 +83,6 @@ Validação dos dados:
 
 ```
 python3 scripts/validate.py      # estrutura, limite de palavras, relacionados (0 erros)
-python3 scripts/check_links.py   # fontes e fotos respondem (precisa de internet)
 ```
 
 ## Estrutura
