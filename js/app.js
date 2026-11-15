@@ -222,7 +222,7 @@ function applyHubCam() {
     const od = (hubBodies.lua.userData.radius || 0.15) * 2;
     placeHubButtons(
       { terra: hubBodies.terra.position, lua: hubBodies.lua.position, marte: hubBodies.marte.position, espaco: hubBodies.espaco ? hubBodies.espaco.position : null },
-      { terra: ed, lua: od, marte: md, espaco: 2.2 }
+      { terra: ed, lua: od, marte: md, espaco: 5.2 }
     );
   }
   needsRender = true;
@@ -401,7 +401,7 @@ function buildHub() {
   const ep = new THREE.Vector3(Ee[0] * U, 0, -Ee[1] * U);
   const mp = new THREE.Vector3(Mm[0] * U, 0, -Mm[1] * U);
   const ml = Math.atan2(-Ee[1], -Ee[0]) + elong(jd) * rad;
-  const mdist = 2.8;
+  const mdist = 5.4; // afastada o bastante para a Lua maior não encostar na Terra
   const op = new THREE.Vector3(
     ep.x + Math.cos(ml) * mdist,
     0,
@@ -443,7 +443,7 @@ function buildHub() {
   }
 
   // Sun
-  const sunGeo = new THREE.SphereGeometry(hc ? 0.55 : 0.85, 32, 24);
+  const sunGeo = new THREE.SphereGeometry(hc ? 1.4 : 2.4, 32, 24);
   const sunMap = getTexture("sol");
   const sunMat = hc
     ? new THREE.MeshBasicMaterial(sunMap ? { map: sunMap } : { color: 0xffb000 })
@@ -455,7 +455,7 @@ function buildHub() {
   hubGroup.add(sun);
   hubBodies.sol = sun;
   if (!hc && !calm) {
-    hubGroup.add(glow(0xff9a3c, 6.5, 0.6));
+    hubGroup.add(glow(0xff9a3c, 16, 0.6));
   }
 
   // Planets (with optional real textures + animation handles)
@@ -484,7 +484,7 @@ function buildHub() {
     }
     return m;
   }
-  const ed = 1.15, md = 0.62, od = 0.32;
+  const ed = 3.6, md = 1.94, od = 1.0; // mesma proporção de antes (Terra : Marte : Lua), ~3x maiores que no início
   planet(ep, ed / 2, COL.terra.base, ATM.terra, "terra");
   planet(mp, md / 2, COL.marte.base, ATM.marte, "marte");
   planet(op, od / 2, COL.lua.base, ATM.lua, "lua");
@@ -493,8 +493,8 @@ function buildHub() {
 
   // Deep-space portal (far right-ish)
   const free = [
-    new THREE.Vector3(Math.max(ep.x, mp.x) + 9, 0, -6),
-    new THREE.Vector3(Math.max(ep.x, mp.x) + 9, 0, 6)
+    new THREE.Vector3(Math.max(ep.x, mp.x) + 13, 0, -8),
+    new THREE.Vector3(Math.max(ep.x, mp.x) + 13, 0, 8)
   ];
   const pp = free.sort((a, b) => Math.min(a.distanceTo(mp), a.distanceTo(ep)) - Math.min(b.distanceTo(mp), b.distanceTo(ep)))[0];
   {
@@ -510,10 +510,11 @@ function buildHub() {
     geo.setAttribute("position", new THREE.BufferAttribute(P, 3));
     geo.setAttribute("color", new THREE.BufferAttribute(C, 3));
     const core = new THREE.Group();
-    core.add(new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.11, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false })));
+    core.add(new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.22, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false })));
     core.add(new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), new THREE.MeshBasicMaterial({ color: hc ? 0xffffff : 0xfff1c8 })));
     if (!hc) core.add(glow(0x5ce1e6, 3.4, 0.7));
     core.position.copy(pp);
+    core.scale.setScalar(2.3); // vórtice maior (o tamanho dos pontos é ajustado acima)
     core.userData = { body: "espaco", radius: 1.1 };
     hubGroup.add(core);
     hubBodies.espaco = core;
@@ -524,10 +525,29 @@ function buildHub() {
   hubBaseY = span * 1.15;
   camera.fov = 42;
   camera.updateProjectionMatrix();
+  // Enquadramento: afasta a câmera só o necessário para Terra, Lua, Marte e o vórtice caberem
+  // na área livre (abaixo do título, acima dos controles), com folga para os rótulos.
+  {
+    const m = cv.clientWidth < 700, pad = m ? 0.05 : 0.04, top = m ? 0.16 : 0.15, bot = m ? 0.7 : 0.84;
+    const pts = [[ep, ed / 2 + mdist * 0.45], [mp, md / 2], [pp, 3.6]];
+    for (let i = 0; i < 60; i++) {
+      camera.position.set(0, hubBaseY, 0.01);
+      camera.up.set(0, 0, -1);
+      camera.lookAt(0, 0, 0);
+      camera.updateMatrixWorld(true);
+      const k = (hubBaseY * Math.tan(camera.fov * rad / 2));
+      const ok = pts.every(([p, r]) => {
+        const v = p.clone().project(camera), x = v.x * 0.5 + 0.5, y = -v.y * 0.5 + 0.5, rx = r / k / camera.aspect / 2, ry = r / k / 2;
+        return x - rx > pad && x + rx < 1 - pad && y - ry > top && y + ry < bot;
+      });
+      if (ok) break;
+      hubBaseY *= 1.05;
+    }
+  }
   applyHubCam();
 
   // Store screen positions for HTML buttons
-  placeHubButtons({ terra: ep, lua: op, marte: mp, espaco: pp }, { terra: ed, lua: od, marte: md, espaco: 2.2 });
+  placeHubButtons({ terra: ep, lua: op, marte: mp, espaco: pp }, { terra: ed, lua: od, marte: md, espaco: 5.2 });
   needsRender = true;
 }
 
@@ -549,28 +569,61 @@ function placeHubButtons(positions, sizes) {
   place("marte", positions.marte, sizes.marte);
   place("espaco", positions.espaco, sizes.espaco);
 
-  // Simple label side preference (keep readable)
-  const H = document.querySelectorAll("#hubb .pl");
-  H.forEach(b => {
-    const l = b.firstElementChild;
-    if (!l) return;
-    b.dataset.side = "b";
-    l.style.setProperty("--sx", "0px");
-  });
-  followMoonButton();
+  followMoonButton(true);
 }
 
-// Keeps the Moon's HTML button (ring + label) on top of the orbiting Moon
-function followMoonButton() {
-  const b = $('#hubb [data-b="lua"]'), m = hubBodies.lua, e = hubBodies.terra;
-  if (!b || !m || !e || !camera) return;
+// Escolhe o lado de cada legenda (baixo, cima, direita, esquerda ou canto) com a menor
+// sobreposição com outras legendas, com os anéis dos corpos e com as bordas da tela.
+// Se ainda não couber, mostra só o nome (a contagem segue disponível para leitores de tela).
+function layoutLabels() {
+  const w = cv.clientWidth, h = cv.clientHeight, top = h * 0.14, bot = h * 0.9;
+  const btn = k => $(`#hubb [data-b="${k}"]`), H = [...document.querySelectorAll("#hubb .pl")];
+  if (!H.length || !w) return;
+  const inter = (a, b, g) => Math.max(0, Math.min(a.right + g, b.right) - Math.max(a.left - g, b.left)) * Math.max(0, Math.min(a.bottom + g, b.bottom) - Math.max(a.top - g, b.top));
+  const sides = ["b", "t", "r", "l", "br", "bl", "tr", "tl"], done = [];
+  ["terra", "marte", "espaco", "lua"].forEach(k => {
+    const b = btn(k), l = b && b.firstElementChild;
+    if (!l) return;
+    const rings = H.filter(o => o !== b).map(o => o.getBoundingClientRect());
+    const find = () => {
+      let best = null;
+      for (const sd of sides) {
+        b.dataset.side = sd;
+        l.style.setProperty("--sx", "0px");
+        let r = l.getBoundingClientRect();
+        const sx = sd === "t" || sd === "b" ? (r.left < 8 ? 8 - r.left : r.right > w - 8 ? w - 8 - r.right : 0) : 0;
+        l.style.setProperty("--sx", sx + "px");
+        r = l.getBoundingClientRect();
+        const pen = done.reduce((t, d) => t + inter(r, d, 3), 0) + rings.reduce((t, o) => t + inter(r, o, 2), 0) + 40 * (Math.max(0, top - r.top) + Math.max(0, r.bottom - bot) + Math.max(0, 6 - r.left) + Math.max(0, r.right - (w - 6)));
+        if (!best || pen < best[0]) best = [pen, sd, sx];
+        if (!pen) break;
+      }
+      return best;
+    };
+    l.classList.remove("mini");
+    let best = find();
+    if (best[0]) {
+      l.classList.add("mini");
+      const b2 = find();
+      if (b2[0] < best[0]) best = b2; else l.classList.remove("mini");
+    }
+    b.dataset.side = best[1];
+    l.style.setProperty("--sx", best[2] + "px");
+    done.push(l.getBoundingClientRect());
+  });
+}
+
+// Keeps the Moon's HTML button (ring) on top of the orbiting Moon
+let lastLabelLayout = 0;
+function followMoonButton(force) {
+  const b = $('#hubb [data-b="lua"]'), m = hubBodies.lua;
+  if (!b || !m || !camera) return;
   const w = cv.clientWidth, h = cv.clientHeight;
-  const v = m.position.clone().project(camera), u = e.position.clone().project(camera);
+  const v = m.position.clone().project(camera);
   b.style.left = ((v.x * 0.5 + 0.5) * w) + "px";
   b.style.top = ((-v.y * 0.5 + 0.5) * h) + "px";
-  // label on the side facing away from Earth, so it does not cover Earth's label
-  const side = calm ? "l" : (v.y > u.y ? "t" : "b") + (v.x < u.x ? "l" : "r");
-  if (b.dataset.side !== side) b.dataset.side = side;
+  const now = performance.now();
+  if (force || now - lastLabelLayout > 300) { lastLabelLayout = now; layoutLabels(); }
 }
 
 // Longitude offset of the globe's current spin (so the camera centers on the pin)
