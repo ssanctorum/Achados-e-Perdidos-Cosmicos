@@ -648,3 +648,10 @@ button:not(.pl):not(.card-x):active:not(:disabled) { background: #ffffff14; tran
 .card-body { background: linear-gradient(to bottom, rgba(32,18,66,0) 0, rgba(32,18,66,.86) 70px, rgba(32,18,66,.96) 130px); }
 html.hc .p, html.hc #ap, html.hc .lbl, html.hc #seal { background: #000; border: 2px solid #fff; }
 html.hc button:not(.pl):not(.card-x) { background: #000; border-color: #fff; }
+
+dialog { background: #2a1850; border: 1px solid #ffffff38; border-radius: 0; max-width: min(720px,94vw); width: 720px; padding: 0; overflow: hidden; }
+dialog[open] { display: flex; flex-direction: column; }
+.dlg-scroll { overflow-y: auto; max-height: 80vh; padding: 20px 56px 20px 24px; scrollbar-width: thin; }
+dialog .card-x { top: 12px; right: 14px; }
+dialog::backdrop { background: #0009; }
+html.hc dialog { background: #000; border: 2px solid #fff; }

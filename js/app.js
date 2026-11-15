@@ -7,6 +7,7 @@ const T = {
   pt: {
     back: "Voltar", all: "Tudo", hint: "Toque num planeta para explorar",
     items: "itens", item: "item", list: "Itens deixados", close: "Fechar", listen: "Ouvir",
+    ttl: "Achados e Perdidos Cósmicos",
     acc: "Acessibilidade", hc: "Alto contraste", calm: "Modo calmo (sem movimento nem brilho)",
     about: "Sobre os dados", pos: "Posição aproximada.",
     globe: "Globo estilizado, fora de escala. Posições aproximadas.",
@@ -28,6 +29,7 @@ const T = {
   en: {
     back: "Back", all: "All", hint: "Tap a planet to explore",
     items: "items", item: "item", list: "Items left behind", close: "Close", listen: "Listen",
+    ttl: "Cosmic Lost & Found",
     acc: "Accessibility", hc: "High contrast", calm: "Calm mode (no motion or glow)",
     about: "About the data", pos: "Approximate position.",
     globe: "Stylized globe, not to scale. Approximate positions.",
@@ -416,7 +418,7 @@ function buildHub() {
   const sunGeo = new THREE.SphereGeometry(hc ? 0.55 : 0.85, 32, 24);
   const sunMap = getTexture("sol");
   const sunMat = hc
-    ? new THREE.MeshBasicMaterial({ color: 0xffb000 })
+    ? new THREE.MeshBasicMaterial(sunMap ? { map: sunMap } : { color: 0xffb000 })
     : sunMap
       ? new THREE.MeshBasicMaterial({ map: sunMap })
       : new THREE.MeshBasicMaterial({ color: 0xffd166 });
@@ -860,7 +862,7 @@ function tickAnimation(dt) {
     updatePinsFromMarkers();
     moved = true;
   }
-  if (currentMode === "deep" && markers.length && !cur.id) {
+  if (currentMode === "deep" && markers.length) {
     markers.forEach(m => { m.rotation.y += 0.5 * dt; });
     moved = true;
   }
@@ -986,6 +988,7 @@ function render(quiet) {
   $("#lp").setAttribute("aria-pressed", lang === "pt");
   $("#le").setAttribute("aria-pressed", lang === "en");
   $("#hint").textContent = tt.hint;
+  $("#h1").textContent = document.title = tt.ttl;
 
   const dEM = distEM();
   $("#hubb").innerHTML = BODIES.map(k => {
@@ -1284,6 +1287,7 @@ function about() {
   $("#dt").textContent = tt.about;
   $("#dn").textContent = tt.note;
   $("#dc").textContent = tt.close;
+  $("#dx").setAttribute("aria-label", tt.close);
   D.lang = lang;
   $("#dl").innerHTML = ITEMS.map(i =>
     `<li><b>${i.nome}</b><br>${tt.src}: ${i.fonte.startsWith("http") ? `<a href="${i.fonte}" target="_blank" rel="noopener">${i.fonte}</a>` : tt.pend}<br><small>${tt.cons}: ${i.data_consulta === "pendente" ? tt.pend : i.data_consulta}</small></li>`
@@ -1292,6 +1296,7 @@ function about() {
 }
 $("#rs").onclick = () => { seenIds.clear(); ls("seen", "[]"); render(true); };
 $("#ad").onclick = about;
+$("#dx").onclick = () => $("#dlg").close();
 $("#fd").onclick = about;
 $("#app").addEventListener("animationend", e => { if (e.animationName === "scan") e.currentTarget.classList.remove("scan"); });
 
