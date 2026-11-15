@@ -561,3 +561,23 @@ dialog li {
 html.hc #app::after {
     display: none;
 }
+
+/* Imagens nos cards (NASA) */
+.card-img {
+  margin: 0.6rem 0 0.8rem;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--bd);
+  background: #000;
+}
+.card-img img {
+  display: block;
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+}
+.card-img figcaption {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  padding: 0.25rem 0.5rem;
+}

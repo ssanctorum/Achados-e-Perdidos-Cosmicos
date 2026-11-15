@@ -21,7 +21,8 @@
       "lrrr"
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/as11-40-5927/as11-40-5927~medium.jpg"
   },
   {
     "id": "apollo15_lm_lrv",
@@ -44,7 +45,8 @@
       "alsep"
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1971-063C",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/as15-86-11603/as15-86-11603~medium.jpg"
   },
   {
     "id": "surveyor3",
@@ -66,7 +68,8 @@
       "apollo11_lm"
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1967-035A",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA00514/PIA00514~medium.jpg"
   },
   {
     "id": "alsep",
@@ -89,7 +92,8 @@
       "apollo15_lm_lrv"
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_alsep_restore.html",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/as12-46-6792/as12-46-6792~medium.jpg"
   },
   {
     "id": "lrrr",
@@ -111,7 +115,8 @@
       "apollo11_lm"
     ],
     "fonte": "https://ilrs.gsfc.nasa.gov/",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/as11-40-5952/as11-40-5952~medium.jpg"
   },
   {
     "id": "sojourner",
@@ -134,7 +139,8 @@
       "opportunity"
     ],
     "fonte": "https://mars.nasa.gov/mars-exploration/missions/pathfinder/",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA01120/PIA01120~medium.jpg"
   },
   {
     "id": "spirit",
@@ -157,7 +163,8 @@
       "sojourner"
     ],
     "fonte": "https://mars.nasa.gov/mer/mission/status_spiritAll.html",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA04413/PIA04413~medium.jpg"
   },
   {
     "id": "opportunity",
@@ -180,7 +187,8 @@
       "sojourner"
     ],
     "fonte": "https://mars.nasa.gov/mer/mission/status_opportunityAll.html",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA17042/PIA17042~medium.jpg"
   },
   {
     "id": "viking1",
@@ -203,7 +211,8 @@
       "sojourner"
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/planetary/viking.html",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA00563/PIA00563~medium.jpg"
   },
   {
     "id": "viking2",
@@ -225,7 +234,8 @@
       "viking1"
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/planetary/viking.html",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA00384/PIA00384~medium.jpg"
   },
   {
     "id": "phoenix",
@@ -248,7 +258,8 @@
       "viking2"
     ],
     "fonte": "https://science.nasa.gov/mission/mars-phoenix/",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA10246/PIA10246~medium.jpg"
   },
   {
     "id": "voyager1",
@@ -272,7 +283,8 @@
       "pioneer10"
     ],
     "fonte": "https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA17036/PIA17036~medium.jpg"
   },
   {
     "id": "voyager2",
@@ -296,7 +308,8 @@
       "pioneer10"
     ],
     "fonte": "https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA18182/PIA18182~medium.jpg"
   },
   {
     "id": "pioneer10",
@@ -321,7 +334,8 @@
       "pioneer11"
     ],
     "fonte": "https://science.nasa.gov/mission/pioneer-10/",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA00074/PIA00074~medium.jpg"
   },
   {
     "id": "pioneer11",
@@ -345,7 +359,8 @@
       "voyager1"
     ],
     "fonte": "https://science.nasa.gov/mission/pioneer-11/",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA00503/PIA00503~medium.jpg"
   },
   {
     "id": "genesis",
@@ -367,7 +382,8 @@
       "stardust"
     ],
     "fonte": "https://science.nasa.gov/mission/genesis/",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA06354/PIA06354~medium.jpg"
   },
   {
     "id": "stardust",
@@ -389,6 +405,7 @@
       "genesis"
     ],
     "fonte": "https://curator.jsc.nasa.gov/mic/stardust.cfm",
-    "data_consulta": "2026-11-14"
+    "data_consulta": "2026-11-14",
+    "imagem": "https://images-assets.nasa.gov/image/PIA05577/PIA05577~medium.jpg"
   }
 ]

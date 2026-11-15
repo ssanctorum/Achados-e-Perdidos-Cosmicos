@@ -61,6 +61,28 @@ const t = () => T[lang], g = (it, k) => it[k + "_" + lang], nf = n => lang === "
 
 const ATM = { terra: 0x6cc4ff, lua: 0xfff1c8, marte: 0xff8a5c };
 const DV = { terra: [15, -45], lua: [8, 0], marte: [5, -20] };
+const TEX_URL = {
+  terra: "textures/earth.jpg",
+  lua: "textures/moon.jpg",
+  marte: "textures/mars.jpg"
+};
+let texCache = {}, texLoader = null;
+function getTexture(key) {
+  if (!texLoader) texLoader = new THREE.TextureLoader();
+  if (texCache[key]) return texCache[key];
+  const url = TEX_URL[key];
+  if (!url) return null;
+  try {
+    const t = texLoader.load(url, () => { needsRender = true; });
+    t.colorSpace = THREE.SRGBColorSpace || THREE.sRGBEncoding;
+    texCache[key] = t;
+    return t;
+  } catch (e) { return null; }
+}
+
+/* Animated meshes */
+let bodyGlobe = null, hubBodies = {}, hubMoonOrbit = null, animTime = 0;
+
 const COL = {
   terra: { base: 0x2a7de1, land: 0x43b86b },
   lua: { base: 0xcdbf9d, land: 0xa89b7c },
@@ -202,6 +224,9 @@ function clearScene() {
   disposeGroup(bodyGroup); bodyGroup = null;
   disposeGroup(deepGroup); deepGroup = null;
   markers = [];
+  bodyGlobe = null;
+  hubBodies = {};
+  hubMoonOrbit = null;
   while (scene.children.length) scene.remove(scene.children[0]);
 }
 
@@ -306,22 +331,31 @@ function buildHub() {
     hubGroup.add(glow);
   }
 
-  // Planets
+  // Planets (with optional real textures + animation handles)
+  hubBodies = {};
   function planet(pos, r, color, atm, name) {
-    const geo = new THREE.SphereGeometry(r, 28, 20);
-    const mat = hc
-      ? new THREE.MeshBasicMaterial({ color })
-      : new THREE.MeshStandardMaterial({ color, roughness: 0.65, metalness: 0.05, emissive: color, emissiveIntensity: 0.12 });
+    const geo = new THREE.SphereGeometry(r, 32, 24);
+    const map = (!hc && typeof THREE !== "undefined") ? getTexture(name) : null;
+    let mat;
+    if (hc) {
+      mat = new THREE.MeshBasicMaterial({ color });
+    } else if (map) {
+      mat = new THREE.MeshStandardMaterial({ map, roughness: 0.85, metalness: 0.05 });
+    } else {
+      mat = new THREE.MeshStandardMaterial({ color, roughness: 0.65, metalness: 0.05, emissive: color, emissiveIntensity: 0.12 });
+    }
     const m = new THREE.Mesh(geo, mat);
     m.position.copy(pos);
-    m.userData = { body: name };
+    m.userData = { body: name, basePos: pos.clone(), radius: r };
     hubGroup.add(m);
+    hubBodies[name] = m;
     if (!hc && atm) {
       const at = new THREE.Mesh(
         new THREE.SphereGeometry(r * 1.12, 20, 14),
         new THREE.MeshBasicMaterial({ color: atm, transparent: true, opacity: 0.22, depthWrite: false, side: THREE.BackSide })
       );
       at.position.copy(pos);
+      at.userData = { follow: name };
       hubGroup.add(at);
     }
     return m;
@@ -330,6 +364,8 @@ function buildHub() {
   planet(ep, ed / 2, COL.terra.base, ATM.terra, "terra");
   planet(mp, md / 2, COL.marte.base, ATM.marte, "marte");
   planet(op, od / 2, COL.lua.base, ATM.lua, "lua");
+  // store moon orbital params for translation animation
+  hubMoonOrbit = { earth: "terra", dist: mdist, angle0: Math.atan2(op.z - ep.z, op.x - ep.x) };
 
   // Deep-space portal (far right-ish)
   const free = [
@@ -442,10 +478,13 @@ function buildBody(body) {
 
   const R = 1;
   const col = COL[body] || COL.terra;
-  const geo = new THREE.SphereGeometry(R, 48, 36);
+  const geo = new THREE.SphereGeometry(R, 64, 48);
+  const map = (!hc) ? getTexture(body) : null;
   let mat;
   if (hc) {
     mat = new THREE.MeshBasicMaterial({ color: col.base });
+  } else if (map) {
+    mat = new THREE.MeshStandardMaterial({ map, roughness: 0.9, metalness: 0.02 });
   } else {
     mat = new THREE.MeshStandardMaterial({
       color: col.base,
@@ -457,21 +496,24 @@ function buildBody(body) {
   }
   const globe = new THREE.Mesh(geo, mat);
   bodyGroup.add(globe);
+  bodyGlobe = globe;
 
-  // Simple feature blobs (continents / craters / ice)
-  if (body === "terra") {
-    addBlobs(globe, [
-      [48, -100, 0.28], [-14, -60, 0.2], [6, 20, 0.24], [52, 75, 0.34], [-25, 134, 0.12]
-    ], col.land, R);
-  } else if (body === "lua") {
-    const craters = [];
-    let s = 7;
-    const rnd = () => (s = s * 16807 % 2147483647) / 2147483647;
-    for (let i = 0; i < 22; i++) craters.push([rnd() * 140 - 70, rnd() * 360 - 180, 0.04 + rnd() * 0.07]);
-    addBlobs(globe, craters, col.land, R);
-  } else if (body === "marte") {
-    addBlobs(globe, [[10, 60, 0.22], [-20, -100, 0.18], [20, -30, 0.12]], col.land, R);
-    addBlobs(globe, [[90, 0, 0.14], [-90, 0, 0.12]], col.ice, R);
+  // Blobs only as fallback when texture missing
+  if (!map) {
+    if (body === "terra") {
+      addBlobs(globe, [
+        [48, -100, 0.28], [-14, -60, 0.2], [6, 20, 0.24], [52, 75, 0.34], [-25, 134, 0.12]
+      ], col.land, R);
+    } else if (body === "lua") {
+      const craters = [];
+      let s = 7;
+      const rnd = () => (s = s * 16807 % 2147483647) / 2147483647;
+      for (let i = 0; i < 22; i++) craters.push([rnd() * 140 - 70, rnd() * 360 - 180, 0.04 + rnd() * 0.07]);
+      addBlobs(globe, craters, col.land, R);
+    } else if (body === "marte") {
+      addBlobs(globe, [[10, 60, 0.22], [-20, -100, 0.18], [20, -30, 0.12]], col.land, R);
+      addBlobs(globe, [[90, 0, 0.14], [-90, 0, 0.12]], col.ice, R);
+    }
   }
 
   // Atmosphere shell
@@ -642,9 +684,51 @@ function fly(la, lo, k) {
 }
 
 /* ---------- Main render loop ---------- */
-function loop() {
+function tickAnimation(dt) {
+  if (calm) return false;
+  let moved = false;
+  // Body globe spin
+  if (currentMode === "body" && bodyGlobe) {
+    bodyGlobe.rotation.y += 0.08 * dt;
+    moved = true;
+  }
+  // Hub: spin + moon translation around Earth
+  if (currentMode === "hub" && hubBodies.terra) {
+    const spin = { terra: 0.25, lua: 0.05, marte: 0.2 };
+    Object.keys(hubBodies).forEach(k => {
+      const m = hubBodies[k];
+      if (!m) return;
+      m.rotation.y += (spin[k] || 0.1) * dt;
+    });
+    if (hubMoonOrbit && hubBodies.lua && hubBodies.terra) {
+      animTime += dt;
+      const a = hubMoonOrbit.angle0 + animTime * 0.15;
+      const e = hubBodies.terra.position;
+      hubBodies.lua.position.set(
+        e.x + Math.cos(a) * hubMoonOrbit.dist,
+        0,
+        e.z + Math.sin(a) * hubMoonOrbit.dist
+      );
+      // atmosphere shells that follow
+      hubGroup && hubGroup.children.forEach(ch => {
+        if (ch.userData && ch.userData.follow === "lua") ch.position.copy(hubBodies.lua.position);
+        if (ch.userData && ch.userData.follow === "terra") ch.position.copy(hubBodies.terra.position);
+        if (ch.userData && ch.userData.follow === "marte" && hubBodies.marte) ch.position.copy(hubBodies.marte.position);
+      });
+    }
+    moved = true;
+  }
+  return moved;
+}
+
+let lastTs = 0;
+function loop(ts) {
   animId = requestAnimationFrame(loop);
-  if (!needsRender && !targetCam) return;
+  const t = ts || performance.now();
+  const dt = lastTs ? Math.min(0.05, (t - lastTs) / 1000) : 0.016;
+  lastTs = t;
+  const animating = tickAnimation(dt);
+  if (!needsRender && !targetCam && !animating) return;
   needsRender = false;
   if (renderer && scene && camera) renderer.render(scene, camera);
 }
@@ -657,7 +741,10 @@ function cardHtml(it) {
   const hs = g(it, "historia")
     .replace(/(O que é:|O que descobriu:|Onde está hoje:|What it is:|What it found:|Where it is today:)/g, "<br><b>$1</b>")
     .replace(/^<br>/, "");
-  let x = `<h2 id="ct">${it.nome}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
+  const img = it.imagem
+    ? `<figure class="card-img"><img src="${it.imagem}" alt="${it.nome}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><figcaption>NASA / domínio público</figcaption></figure>`
+    : "";
+  let x = `<h2 id="ct">${it.nome}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small>${img}<p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
   if (g(it, "por_que_ficou")) x += `<p><b>${t().why}:</b> ${g(it, "por_que_ficou")}</p>`;
   if (it.lat != null) x += `<p>${fmtC(it.lat, it.lng)}<small>${t().pos}</small></p>`;
   if (d) x += `<p><b>${t().dist}:</b> ${nf(it.distancia_ua.toFixed(1))} UA (${it.data_distancia}) · ${t().sig} ${nf(Math.round(it.distancia_ua * 8.317 / 60))} h</p>`;
