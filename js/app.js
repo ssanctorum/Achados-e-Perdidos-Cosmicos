@@ -22,9 +22,7 @@ const T = {
     sp: "Mais espaço entre letras, palavras e linhas", why: "Por que ficou", rel: "Relacionados",
     err: "Não foi possível carregar os dados. Abra por um servidor (ex.: python3 -m http.server).",
     st: { ativo: "Ativo", silencioso: "Silencioso", "concluído": "Concluído" },
-    nm: { terra: "Terra", lua: "Lua", marte: "Marte", espaco: "Rumo às estrelas" },
-    hcap: d => `Posições reais em ${d}, vistas de cima. Sol, planetas e a distância da Lua estão ampliados.`,
-    hdist: (u, m) => `Terra–Marte hoje: ${u} UA (luz: ${m} min) · Terra–Lua: 384.400 km (luz: 1,3 s)`,
+    nm: { terra: "Terra", lua: "Lua", marte: "Marte", espaco: "Rumo às estrelas" },  
     E: "L", W: "O"
   },
   en: {
@@ -46,8 +44,6 @@ const T = {
     err: "Could not load the data. Open through a server (e.g. python3 -m http.server).",
     st: { ativo: "Active", silencioso: "Silent", "concluído": "Completed" },
     nm: { terra: "Earth", lua: "Moon", marte: "Mars", espaco: "Toward the stars" },
-    hcap: d => `Real positions on ${d}, seen from above. The Sun, planets and the Moon's distance are enlarged.`,
-    hdist: (u, m) => `Earth–Mars today: ${u} AU (light: ${m} min) · Earth–Moon: 384,400 km (light: 1.3 s)`,
     E: "E", W: "W"
   }
 };
@@ -979,14 +975,11 @@ function render(quiet) {
   $("#hint").textContent = tt.hint;
   $("#h1").textContent = document.title = tt.ttl;
 
-  const dEM = distEM();
   $("#hubb").innerHTML = BODIES.map(k => {
     const n = ITEMS.filter(i => i.corpo === k).length;
     const dn = ITEMS.filter(i => i.corpo === k && seenIds.has(i.id)).length;
     return `<button class="pl" data-b="${k}"><span class="lbl"><b>${tt.nm[k]}</b><small>${n} ${n === 1 ? tt.item : tt.items} · ${dn}/${n} ${tt.explored}${n && dn === n ? " ✓" : ""}</small></span></button>`;
   }).join("");
-  $("#hcap").textContent = tt.hcap(skyDate());
-  $("#hdist").textContent = tt.hdist(nf(dEM.toFixed(1)), nf(Math.round(dEM * 8.317)));
   $("#tl").hidden = !nb;
   $("#seal").hidden = !nb;
   $("#prog").textContent = tt.prog(ITEMS.filter(i => seenIds.has(i.id)).length, ITEMS.length);
@@ -995,7 +988,7 @@ function render(quiet) {
   A.classList.toggle("item", !!ni);
   $("#back").disabled = !nb;
 
-  const gl = nb && nb !== "espaco", sealT = !nb ? tt.hcap(skyDate()) : gl ? tt.globe : tt.nsc;
+  const gl = nb && nb !== "espaco", sealT = !nb ? "" : gl ? tt.globe : tt.nsc;
   $("#seal").textContent = sealT;
   $("#seal").lang = lang;
   $("#bc").innerHTML = `<li>${tt.all}</li>` + (nb ? `<li>${tt.nm[nb]}</li>` : "") + (it ? `<li>${nm(it)}</li>` : "");

@@ -234,16 +234,7 @@ html.hc #hint {
     font-size: .85rem;
     opacity: .95;
 }
-#hcap {
-    color: var(--wn);
-}
-#hdist {
-    color: var(--ac2);
-}
-#hr {
-    pointer-events: auto;
-    margin-top: 2px;
-}
+
 html.hc #hdist {
     color: var(--tx);
 }
