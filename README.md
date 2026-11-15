@@ -5,7 +5,7 @@ Explorador interativo do hardware que a NASA deixou na Lua, em Marte e no espaç
 ## Estrutura
 
 - `index.html`: marcação da página
-- `css/estilo.css`: estilos e modos de acessibilidade
+- `css/style.css`: estilos e modos de acessibilidade
 - `js/app.js`: hub, globo em canvas, cards, i18n PT/EN e acessibilidade
 - `data/items.json`: itens, textos e fontes (única fonte de conteúdo)
 
