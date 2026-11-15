@@ -212,6 +212,7 @@ function applyHubCam() {
   );
   camera.up.set(-Math.sin(yw), 0, -Math.cos(yw));
   camera.lookAt(0, 0, 0);
+  camera.updateMatrixWorld(true);
   const hr = $("#hr");
   if (hr) hr.hidden = !hubDirty();
   if (calm && !hubDirty() && hubMoonOrbit && hubBodies.lua && hubBodies.terra) parkMoon();
