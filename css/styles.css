@@ -323,3 +323,4 @@ dialog li {
     }
 }
     
+#err{margin:0;padding:8px 12px;color:var(--wn);background:var(--panel);border:1px solid var(--bd);border-radius:6px}
