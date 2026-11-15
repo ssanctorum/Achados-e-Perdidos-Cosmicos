@@ -933,13 +933,16 @@ function loop(ts) {
 /* ---------- App logic ---------- */
 const fmtC = (la, lo) => `${nf(Math.abs(la).toFixed(1))}° ${la >= 0 ? "N" : "S"}, ${nf(Math.abs(lo).toFixed(1))}° ${lo >= 0 ? t().E : t().W}`;
 
+const ICON_PLAY = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';
+const ICON_STOP = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor"/></svg>';
+
 function cardHtml(it) {
   const d = it.corpo === "espaco";
   const hs = g(it, "historia")
     .replace(/(O que é:|O que descobriu:|Onde está hoje:|What it is:|What it found:|Where it is today:)/g, "<br><b>$1</b>")
     .replace(/^<br>/, "");
   const img = `<div class="card-bg" aria-hidden="true" data-img="${it.imagem || ""}" data-id="${it.id}"></div>`;
-  let x = `<button id="cl" class="card-x" aria-label="${t().close}">✕</button><button id="ls" class="card-x card-ls" aria-label="${t().listen}">🔊</button><div class="card-scroll">${img}<div class="card-body"><h2 id="ct">${nm(it)}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
+  let x = `<button id="cl" class="card-x" aria-label="${t().close}">✕</button><button id="ls" class="card-x card-ls" aria-label="${t().listen}">${ICON_PLAY}</button><div class="card-scroll">${img}<div class="card-body"><h2 id="ct">${nm(it)}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
   if (g(it, "por_que_ficou")) x += `<p><b>${t().why}:</b> ${g(it, "por_que_ficou")}</p>`;
   if (it.lat != null) x += `<p>${fmtC(it.lat, it.lng)}<small>${t().pos}</small></p>`;
   if (d && it.trajetoria) x += `<p><b>${t().traj}:</b> <span lang="${lang === "en" && it.trajetoria_en ? "en" : "pt-BR"}">${lang === "en" && it.trajetoria_en ? it.trajetoria_en : it.trajetoria}</span></p>`;
@@ -1050,9 +1053,9 @@ function render(quiet) {
       if (S.speaking) { S.cancel(); return; }
       const u = new SpeechSynthesisUtterance([nm(it), g(it, "historia"), g(it, "descricao_visual"), t().last + ": " + g(it, "ultimo_sinal")].join(". "));
       u.lang = lang === "pt" ? "pt-BR" : "en-US";
-      const done = () => { L.textContent = "🔊"; L.setAttribute("aria-label", t().listen); };
+      const done = () => { L.innerHTML = ICON_PLAY; L.setAttribute("aria-label", t().listen); };
       u.onend = u.onerror = done;
-      L.textContent = "⏹"; L.setAttribute("aria-label", t().stop);
+      L.innerHTML = ICON_STOP; L.setAttribute("aria-label", t().stop);
       S.speak(u);
     };
     K.onclick = e => {
