@@ -1,7 +1,3 @@
-/* Achados e Perdidos Cósmicos — WebGL (Three.js) migration
-   Equipe Cuscuz Cósmico · NASA Space Apps 2026
-   Mantém: navegação por hash, acessibilidade, i18n, cards HTML, VLibras, modo calmo/alto contraste.
-*/
 let ITEMS = [];
 const $ = s => document.querySelector(s), ls = (k, v) => {
   try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {}
@@ -136,7 +132,7 @@ let hubGroup = null, bodyGroup = null, deepGroup = null;
 let markers = [], raycaster = null, mouse = null;
 let targetCam = null, animStart = 0, animFrom = null;
 
-/* Drag to rotate globe / deep space */
+/* Drag / pinch / zoom */
 let drag = {
   active: false,
   moved: false,
@@ -145,13 +141,41 @@ let drag = {
   lat0: 0,
   lng0: 0,
   deepAngle0: 0,
-  deepAngle: 0.6, // radians around Y for deep view
-  deepElev: 0.55
+  deepAngle: 0.6,
+  deepElev: 0.55,
+  pointers: new Map(), // pointerId -> {x,y}
+  pinchDist0: 0,
+  pinchZoom0: 1
 };
+let hubZoom = 1;      // 1 = default top-down distance
+let hubBaseY = 20;    // set on buildHub
+let deepRadius = 18;  // zoom for deep space
+
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+function applyHubCam() {
+  if (currentMode !== "hub" || !camera) return;
+  const y = hubBaseY / hubZoom;
+  camera.position.set(0, y, 0.01);
+  camera.lookAt(0, 0, 0);
+  camera.up.set(0, 0, -1);
+  // re-place HTML buttons if planets exist
+  if (hubBodies.terra && hubBodies.marte && hubBodies.lua) {
+    const ed = (hubBodies.terra.userData.radius || 0.5) * 2;
+    const md = (hubBodies.marte.userData.radius || 0.3) * 2;
+    const od = (hubBodies.lua.userData.radius || 0.15) * 2;
+    placeHubButtons(
+      { terra: hubBodies.terra.position, lua: hubBodies.lua.position, marte: hubBodies.marte.position, espaco: hubBodies.espaco ? hubBodies.espaco.position : null },
+      { terra: ed, lua: od, marte: md, espaco: 2.2 }
+    );
+  }
+  needsRender = true;
+}
 
 function applyBodyCam() {
   if (currentMode !== "body" || !camera) return;
-  const dist = 2.6 / (cam.k || 1);
+  cam.k = clamp(cam.k || 1, 0.7, 4.5);
+  const dist = 2.6 / cam.k;
   const camPos = latLngToVec(cam.lat, cam.lng, dist);
   camera.position.copy(camPos);
   camera.lookAt(0, 0, 0);
@@ -162,7 +186,8 @@ function applyBodyCam() {
 
 function applyDeepCam() {
   if (currentMode !== "deep" || !camera) return;
-  const r = 18;
+  deepRadius = clamp(deepRadius, 6, 40);
+  const r = deepRadius;
   const a = drag.deepAngle;
   const e = drag.deepElev;
   camera.position.set(
@@ -174,6 +199,20 @@ function applyDeepCam() {
   camera.up.set(0, 1, 0);
   updatePinsFromMarkers();
   needsRender = true;
+}
+
+function applyZoom(factor) {
+  // factor > 1 = zoom in
+  if (currentMode === "hub") {
+    hubZoom = clamp(hubZoom * factor, 0.55, 3.2);
+    applyHubCam();
+  } else if (currentMode === "body") {
+    cam.k = clamp((cam.k || 1) * factor, 0.7, 4.5);
+    applyBodyCam();
+  } else if (currentMode === "deep") {
+    deepRadius = clamp(deepRadius / factor, 6, 40);
+    applyDeepCam();
+  }
 }
 
 function initThree() {
@@ -405,8 +444,9 @@ function buildHub() {
       new THREE.MeshBasicMaterial({ color: hc ? 0xffffff : 0x5ce1e6 })
     );
     core.position.copy(pp);
-    core.userData = { body: "espaco" };
+    core.userData = { body: "espaco", radius: 1.1 };
     hubGroup.add(core);
+    hubBodies.espaco = core;
 
     // Trajectory hints
     for (let o of [-0.25, 0, 0.25]) {
@@ -417,13 +457,12 @@ function buildHub() {
     }
   }
 
-  // Camera top-down
+  // Camera top-down (hubZoom scales distance)
   const span = Math.max(18, Math.hypot(ep.x, ep.z) + 6, Math.hypot(mp.x, mp.z) + 6);
-  camera.position.set(0, span * 1.15, 0.01);
-  camera.lookAt(0, 0, 0);
-  camera.up.set(0, 0, -1);
+  hubBaseY = span * 1.15;
   camera.fov = 42;
   camera.updateProjectionMatrix();
+  applyHubCam();
 
   // Store screen positions for HTML buttons
   placeHubButtons({ terra: ep, lua: op, marte: mp, espaco: pp }, { terra: ed, lua: od, marte: md, espaco: 2.2 });
@@ -434,7 +473,7 @@ function placeHubButtons(positions, sizes) {
   const w = cv.clientWidth, h = cv.clientHeight;
   const place = (k, pos, d) => {
     const b = $(`#hubb [data-b="${k}"]`);
-    if (!b) return;
+    if (!b || !pos) return;
     const v = pos.clone().project(camera);
     const x = (v.x * 0.5 + 0.5) * w;
     const y = (-v.y * 0.5 + 0.5) * h;
@@ -894,36 +933,76 @@ function pointerPos(e) {
   return { x: t.clientX - r.left, y: t.clientY - r.top, cx: t.clientX, cy: t.clientY };
 }
 
+function pinchDistance() {
+  const pts = [...drag.pointers.values()];
+  if (pts.length < 2) return 0;
+  return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+}
+
 function onPointerDown(e) {
-  if (currentMode !== "body" && currentMode !== "deep") return;
+  if (!currentMode) return; // hub also needs pinch/zoom; drag rotate only body/deep
   if (e.button != null && e.button !== 0) return;
   const p = pointerPos(e);
-  drag.active = true;
-  drag.moved = false;
-  drag.x0 = p.x;
-  drag.y0 = p.y;
-  drag.lat0 = cam.lat;
-  drag.lng0 = cam.lng;
-  drag.deepAngle0 = drag.deepAngle;
-  cancelAnimationFrame(tw);
-  targetCam = null;
-  cv.setPointerCapture?.(e.pointerId);
-  cv.style.cursor = "grabbing";
+  drag.pointers.set(e.pointerId, { x: p.x, y: p.y });
+
+  if (drag.pointers.size === 2) {
+    drag.pinchDist0 = pinchDistance();
+    drag.pinchZoom0 = currentMode === "hub" ? hubZoom : currentMode === "body" ? (cam.k || 1) : (1 / deepRadius);
+    drag.active = false;
+    e.preventDefault();
+    return;
+  }
+
+  if (currentMode === "body" || currentMode === "deep") {
+    drag.active = true;
+    drag.moved = false;
+    drag.x0 = p.x;
+    drag.y0 = p.y;
+    drag.lat0 = cam.lat;
+    drag.lng0 = cam.lng;
+    drag.deepAngle0 = drag.deepAngle;
+    cancelAnimationFrame(tw);
+    targetCam = null;
+    cv.setPointerCapture?.(e.pointerId);
+    cv.style.cursor = "grabbing";
+  }
   e.preventDefault();
 }
 
 function onPointerMove(e) {
-  if (!drag.active) return;
+  if (!drag.pointers.has(e.pointerId) && !drag.active) return;
   const p = pointerPos(e);
+  if (drag.pointers.has(e.pointerId)) drag.pointers.set(e.pointerId, { x: p.x, y: p.y });
+
+  // Pinch zoom (2 fingers) — hub, body, deep
+  if (drag.pointers.size >= 2) {
+    const d = pinchDistance();
+    if (drag.pinchDist0 > 0 && d > 0) {
+      const ratio = d / drag.pinchDist0;
+      if (currentMode === "hub") {
+        hubZoom = clamp(drag.pinchZoom0 * ratio, 0.55, 3.2);
+        applyHubCam();
+      } else if (currentMode === "body") {
+        cam.k = clamp(drag.pinchZoom0 * ratio, 0.7, 4.5);
+        applyBodyCam();
+      } else if (currentMode === "deep") {
+        deepRadius = clamp(1 / Math.max(0.0001, drag.pinchZoom0 * ratio), 6, 40);
+        applyDeepCam();
+      }
+    }
+    e.preventDefault();
+    return;
+  }
+
+  if (!drag.active) return;
   const dx = p.x - drag.x0;
   const dy = p.y - drag.y0;
   if (Math.hypot(dx, dy) > 6) drag.moved = true;
 
   if (currentMode === "body") {
-    // Horizontal drag → longitude; vertical → latitude
     const sens = 0.28;
     cam.lng = drag.lng0 - dx * sens;
-    cam.lat = Math.max(-80, Math.min(80, drag.lat0 + dy * sens));
+    cam.lat = clamp(drag.lat0 + dy * sens, -80, 80);
     applyBodyCam();
   } else if (currentMode === "deep") {
     drag.deepAngle = drag.deepAngle0 - dx * 0.008;
@@ -933,13 +1012,18 @@ function onPointerMove(e) {
 }
 
 function onPointerUp(e) {
-  if (!drag.active) return;
+  drag.pointers.delete(e.pointerId);
+  if (drag.pointers.size < 2) drag.pinchDist0 = 0;
+
+  if (!drag.active) {
+    try { cv.releasePointerCapture?.(e.pointerId); } catch (_) {}
+    return;
+  }
   const moved = drag.moved;
   drag.active = false;
   cv.style.cursor = (currentMode === "body" || currentMode === "deep") ? "grab" : "";
   try { cv.releasePointerCapture?.(e.pointerId); } catch (_) {}
 
-  // Only treat as pin click if the user did not drag
   if (!moved && pins.length) {
     const r = cv.getBoundingClientRect();
     const x = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) - r.left;
@@ -954,9 +1038,18 @@ cv.addEventListener("pointermove", onPointerMove);
 cv.addEventListener("pointerup", onPointerUp);
 cv.addEventListener("pointercancel", onPointerUp);
 cv.addEventListener("lostpointercapture", () => { drag.active = false; });
-// Prevent page scroll while dragging on touch
+
+// Mouse wheel zoom
+cv.addEventListener("wheel", e => {
+  if (!currentMode) return;
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+  applyZoom(factor);
+}, { passive: false });
+
+// Prevent page scroll while interacting on touch
 cv.addEventListener("touchstart", e => {
-  if (currentMode === "body" || currentMode === "deep") e.preventDefault();
+  if (currentMode) e.preventDefault();
 }, { passive: false });
 $("#back").onclick = up;
 document.addEventListener("keydown", e => {
