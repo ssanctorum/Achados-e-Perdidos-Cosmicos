@@ -349,6 +349,7 @@ function render(quiet) {
     if (it && it.lat != null && (nb !== prev.b || ni !== prev.id)) fly(it.lat, it.lng, 2.4);
     else if (nb && nb !== "espaco" && (prev.id || nb !== prev.b) && !it) fly(DV[nb][0], DV[nb][1], 1);
     else draw();
+    libras();
     if (!quiet) {
         if (nb !== prev.b) $("#live").textContent = `${tt.scr}: ${nb?tt.nm[nb]:"Hub"}. ${nb?ITEMS.filter(i=>i.corpo===nb).length+" "+tt.items+". ":""}${sealT}`;
         if (ni && ni !== prev.id) K.focus();
@@ -381,6 +382,34 @@ document.addEventListener("keydown", e => {
     if ("speechSynthesis" in window) speechSynthesis.cancel();
     up()
 });
+let vlOn = 0;
+function libras() {
+    const on = lang === "pt";
+    document.querySelectorAll("#libras,#vlibras-access-wrapper,#vlibras-app-root").forEach(e => e.hidden = !on);
+    if (!on) {
+        try { window.VLibrasWidget?.toggle?.(false) } catch (e) {}
+        return
+    }
+    if (vlOn) return;
+    vlOn = 1;
+    const sc = document.createElement("script");
+    sc.src = "https://vlibras.gov.br/app/vlibras-plugin.js";
+    sc.async = true;
+    sc.onload = () => {
+        try { new window.VLibras.Widget("https://vlibras.gov.br/app") } catch (e) { return }
+        let n = 0;
+        const iv = setInterval(() => {
+            const a = window.VLibrasWidget?.access;
+            if (a) {
+                a.style.top = "auto";
+                a.style.right = "16px";
+                a.style.bottom = "calc(16px + env(safe-area-inset-bottom,0px))";
+                clearInterval(iv)
+            } else if (++n > 50) clearInterval(iv)
+        }, 100)
+    };
+    document.body.appendChild(sc)
+}
 const setLang = l => {
     lang = l;
     ls("lang", l);
