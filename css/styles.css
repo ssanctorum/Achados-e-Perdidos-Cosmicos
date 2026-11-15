@@ -227,7 +227,7 @@ html.hc #hint {
     transform: translateX(-50%);
     width: min(900px,calc(100% - 32px));
     text-align: center;
-    pointer-events: none;
+    pointer-events: auto;
 }
 #hubcap p {
     margin: 0 0 4px;
@@ -686,4 +686,14 @@ html.nogl .pl .lbl {
     width: auto;
     max-width: none;
     background: transparent;
+}
+
+@media (max-width: 700px) {
+    #tl { left: 16px; right: 16px; max-width: none; pointer-events: none; }
+    #tl > * { pointer-events: auto; }
+    #bc { position: absolute; top: 0; right: 0; max-width: calc(100% - 132px); flex-wrap: nowrap; justify-content: flex-end; font-size: .85rem; white-space: nowrap; }
+    #bc li { flex: 0 0 auto; }
+    #bc li:last-child { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .item #seal { display: none; }
+    .item #card { top: 76px; bottom: 72px; max-height: none; }
 }
