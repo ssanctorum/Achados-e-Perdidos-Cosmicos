@@ -26,7 +26,7 @@ const T = {
     E: "L", W: "O"
   },
   en: {
-    back: "Back", all: "All", hint: "Tap a planet to explore. Drag to rotate. \nPinch to zoom.", hreset: "Reset view",
+    back: "Back", all: "All", hint: "Tap a planet to explore. Drag to rotate. \nPinch or mouse scroll to zoom.", hreset: "Reset view",
     items: "items", item: "item", list: "Items left behind", close: "Close", listen: "Listen",
     ttl: "Cosmic Lost & Found",
     acc: "Accessibility", hc: "High contrast", calm: "Calm mode (no motion or glow)",
