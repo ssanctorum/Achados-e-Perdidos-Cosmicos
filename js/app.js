@@ -10,7 +10,7 @@ const T = {
     pt: {
         back: "Voltar",
         all: "Tudo",
-        hint: "Toque num planeta para explorar",
+        hint: "Toque num item para explorar",
         items: "itens",
         item: "item",
         list: "Itens deixados",
