@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Valida data/items.json contra as regras do planejamento. Uso: python3 scripts/validate.py"""
+"""Validates data/items.json against the project rules. Usage: python3 scripts/validate.py"""
 import json, sys, pathlib
 
 F = pathlib.Path(__file__).resolve().parent.parent / "data" / "items.json"
 CORPOS = {"terra", "lua", "marte", "espaco"}
 STATUS = {"ativo", "silencioso", "concluído"}
 HIST_MAX = 80
-DESC_MIN, DESC_MAX = 30, 40  # regra do plano; mude aqui se a equipe decidir outra faixa
+DESC_MIN, DESC_MAX = 30, 40  # project rule; change here if the team picks another range
 MARCAS = {
     "pt": ["O que é:", "O que descobriu:", "Onde está hoje:"],
     "en": ["What it is:", "What it found:", "Where it is today:"],

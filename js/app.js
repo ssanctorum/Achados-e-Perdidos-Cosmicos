@@ -86,7 +86,6 @@ function getTexture(key) {
   } catch (e) { return null; }
 }
 
-/* Animated meshes */
 let bodyGlobe = null, hubBodies = {}, hubMoonOrbit = null, animTime = 0;
 
 const COL = {
@@ -95,7 +94,7 @@ const COL = {
   marte: { base: 0xe0693a, land: 0xa8431f, ice: 0xfff5ea }
 };
 
-/* Efemérides aproximadas (elementos keplerianos JPL, 1800–2050) */
+/* Approximate ephemerides (JPL Keplerian elements, valid 1800–2050) */
 const EL = {
   terra: [1.00000261, 0.00000562, 0.01671123, -0.00004392, -0.00001531, -0.01294668, 100.46457166, 35999.37244981, 102.93768193, 0.32327364, 0, 0],
   marte: [1.52371034, 0.00001847, 0.09339410, 0.00007882, 1.84969142, -0.00813131, -4.55343205, 19140.30268499, -23.94362959, 0.44441088, 49.55953891, -0.29257343]
@@ -130,14 +129,13 @@ const distEM = () => {
   return Math.hypot(a[0] - b[0], a[1] - b[1]);
 };
 
-/* ========== Three.js setup ========== */
+/* ---------- Three.js setup ---------- */
 const cv = $("#cv");
 let renderer, scene, camera, animId = null, currentMode = null;
 let hubGroup = null, bodyGroup = null, deepGroup = null;
 let markers = [], raycaster = null, mouse = null;
 let targetCam = null, animStart = 0, animFrom = null;
 
-/* Drag / pinch / zoom */
 let drag = {
   active: false,
   moved: false,
@@ -158,11 +156,11 @@ let drag = {
 };
 let hubZoom = 1;      // 1 = default top-down distance
 let hubBaseY = 20;    // set on buildHub
-let deepRadius = 18;  // zoom for deep space
+let deepRadius = 18;
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-const HUB_TILT_MAX = 1.2; // ~69° a partir da vertical
+const HUB_TILT_MAX = 1.2; // ~69° from vertical
 const hubDirty = () => {
   const y = ((drag.hubYaw + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
   return Math.abs(y) > 1e-3 || drag.hubTilt > 1e-3 || Math.abs(hubZoom - 1) > 1e-3;
@@ -204,7 +202,7 @@ function parkMoon() {
 function applyHubCam() {
   if (currentMode !== "hub" || !camera) return;
   const r = hubBaseY / hubZoom, yw = drag.hubYaw, tl = clamp(drag.hubTilt, 0, HUB_TILT_MAX);
-  // tl = 0: vista de cima (como antes). yw gira em volta do Sol; tl inclina em direção ao horizonte.
+  // tl = 0: straight top-down view. yw orbits around the Sun; tl tilts toward the horizon.
   camera.position.set(
     Math.sin(yw) * Math.sin(tl) * r + Math.sin(yw) * 0.01,
     Math.cos(tl) * r,
@@ -397,19 +395,18 @@ function buildHub() {
   hubGroup.add(makeStars(900));
 
   const jd = skyJD();
-  const U = 12; // scale units
+  const U = 12; // scene units per AU
   const Ee = helio("terra", jd), Mm = helio("marte", jd);
   const ep = new THREE.Vector3(Ee[0] * U, 0, -Ee[1] * U);
   const mp = new THREE.Vector3(Mm[0] * U, 0, -Mm[1] * U);
   const ml = Math.atan2(-Ee[1], -Ee[0]) + elong(jd) * rad;
-  const mdist = 5.4; // afastada o bastante para a Lua maior não encostar na Terra
+  const mdist = 5.4; // far enough apart that the enlarged Moon doesn't touch Earth
   const op = new THREE.Vector3(
     ep.x + Math.cos(ml) * mdist,
     0,
     ep.z - Math.sin(ml) * mdist
   );
 
-  // Orbits
   function orbitLine(key, color) {
     const pts = [];
     for (let i = 0; i <= 128; i++) {
@@ -423,7 +420,6 @@ function buildHub() {
   hubGroup.add(orbitLine("terra", 0xffffff));
   hubGroup.add(orbitLine("marte", 0xffffff));
 
-  // Moon orbit around Earth (visual)
   {
     const pts = [];
     for (let i = 0; i <= 64; i++) {
@@ -434,7 +430,6 @@ function buildHub() {
     hubGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: hc ? 0xffffff : 0xffffff30, transparent: true, opacity: 0.4 })));
   }
 
-  // Earth–Mars dashed line
   {
     const geo = new THREE.BufferGeometry().setFromPoints([ep, mp]);
     const mat = new THREE.LineDashedMaterial({ color: hc ? 0xffffff : 0x5ce1e6, dashSize: 0.6, gapSize: 0.4, transparent: true, opacity: 0.55 });
@@ -443,7 +438,6 @@ function buildHub() {
     hubGroup.add(line);
   }
 
-  // Sun
   const sunGeo = new THREE.SphereGeometry(hc ? 1.4 : 2.4, 32, 24);
   const sunMap = getTexture("sol");
   const sunMat = hc
@@ -459,7 +453,6 @@ function buildHub() {
     hubGroup.add(glow(0xff9a3c, 16, 0.6));
   }
 
-  // Planets (with optional real textures + animation handles)
   hubBodies = {};
   function planet(pos, r, color, atm, name) {
     const geo = new THREE.SphereGeometry(r, 32, 24);
@@ -485,14 +478,14 @@ function buildHub() {
     }
     return m;
   }
-  const ed = 3.6, md = 1.94, od = 1.0; // mesma proporção de antes (Terra : Marte : Lua), ~3x maiores que no início
+  const ed = 3.6, md = 1.94, od = 1.0;
   planet(ep, ed / 2, COL.terra.base, ATM.terra, "terra");
   planet(mp, md / 2, COL.marte.base, ATM.marte, "marte");
   planet(op, od / 2, COL.lua.base, ATM.lua, "lua");
   // store moon orbital params for translation animation
   hubMoonOrbit = { earth: "terra", dist: mdist, angle0: Math.atan2(op.z - ep.z, op.x - ep.x) };
 
-  // Deep-space portal (far right-ish)
+  // Deep-space portal
   const free = [
     new THREE.Vector3(Math.max(ep.x, mp.x) + 13, 0, -8),
     new THREE.Vector3(Math.max(ep.x, mp.x) + 13, 0, 8)
@@ -515,7 +508,7 @@ function buildHub() {
     core.add(new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), new THREE.MeshBasicMaterial({ color: hc ? 0xffffff : 0xfff1c8 })));
     if (!hc) core.add(glow(0x5ce1e6, 3.4, 0.7));
     core.position.copy(pp);
-    core.scale.setScalar(2.3); // vórtice maior (o tamanho dos pontos é ajustado acima)
+    core.scale.setScalar(2.3);
     core.userData = { body: "espaco", radius: 1.1 };
     hubGroup.add(core);
     hubBodies.espaco = core;
@@ -526,8 +519,8 @@ function buildHub() {
   hubBaseY = span * 1.15;
   camera.fov = 42;
   camera.updateProjectionMatrix();
-  // Enquadramento: afasta a câmera só o necessário para Terra, Lua, Marte e o vórtice caberem
-  // na área livre (abaixo do título, acima dos controles), com folga para os rótulos.
+  // Framing: pull the camera back only as far as needed so Earth, Moon, Mars and the vortex fit
+  // in the free area (below the title, above the controls), leaving room for labels.
   {
     const m = cv.clientWidth < 700, pad = m ? 0.05 : 0.04, top = m ? 0.16 : 0.15, bot = m ? 0.7 : 0.84;
     const pts = [[ep, ed / 2 + mdist * 0.45], [mp, md / 2], [pp, 3.6]];
@@ -637,7 +630,6 @@ function recolorMarkers(id) {
   needsRender = true;
 }
 
-// Miniature probe (low-poly): bus, dish, booms and RTG
 /* ---------- Body (globe) scene ---------- */
 function latLngToVec(lat, lng, R = 1) {
   const phi = (90 - lat) * rad;
@@ -708,12 +700,10 @@ function buildBody(body) {
     }
   }
 
-  // Atmosphere shell
   if (!hc) {
     bodyGroup.add(glow(ATM[body], R * 3.1, calm ? 0.4 : 0.6));
   }
 
-  // Markers
   markers = [];
   const its = ITEMS.filter(i => i.corpo === body).flatMap(i => sitesOf(i).map(([la, lo]) => ({ id: i.id, lat: la, lng: lo })));
   its.forEach(it => {
@@ -723,7 +713,7 @@ function buildBody(body) {
     model.scale.setScalar(0.15);
     m.add(model);
     m.position.copy(p);
-    // "em pé" na superfície: o eixo +Y do modelo aponta para fora do globo
+    // Stands upright on the surface: the model's +Y axis points away from the globe
     m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), p.clone().normalize());
     m.userData = { id: it.id, model };
     const ring = new THREE.Mesh(
@@ -733,12 +723,11 @@ function buildBody(body) {
     ring.rotation.x = Math.PI / 2;
     m.add(ring);
     m.userData.ring = ring;
-    globe.add(m); // filho do globo: gira junto com o planeta
+    globe.add(m); // Child of the globe: spins with the planet
     markers.push(m);
   });
   recolorMarkers(cur.id);
 
-  // Camera
   const [la, lo] = [cam.lat, cam.lng];
   const dist = 2.6 / (cam.k || 1);
   const camPos = latLngToVec(la, lo, dist);
@@ -773,7 +762,7 @@ function updatePinsFromMarkers() {
     m.getWorldPosition(wp);
     if (currentMode === "body" && wp.dot(camera.position) < wp.lengthSq()) return; // far side of the globe
     const v = wp.clone().project(camera);
-    if (v.z > 1) return; // behind
+    if (v.z > 1) return; // outside the view
     const x = (v.x * 0.5 + 0.5) * w;
     const y = (-v.y * 0.5 + 0.5) * h;
     pins.push([x, y, m.userData.id]);
@@ -790,7 +779,6 @@ function buildDeep() {
   scene.add(new THREE.AmbientLight(0xffffff, hc ? 1 : 0.5));
   deepGroup.add(makeStars(1400));
 
-  // Sun-ish center
   const sunMap = getTexture("sol");
   const sun = new THREE.Mesh(
     new THREE.SphereGeometry(0.35, 24, 18),
@@ -804,7 +792,6 @@ function buildDeep() {
     if (!calm) deepGroup.add(glow(0xff9a3c, 2.6, 0.6));
   }
 
-  // Concentric rings
   [2.2, 3.6, 5.2, 7].forEach(r => {
     const geo = new THREE.BufferGeometry().setFromPoints(
       Array.from({ length: 65 }, (_, i) => {
@@ -823,7 +810,7 @@ function buildDeep() {
   markers = [];
   const eps = 23.44 * rad;
   its.forEach(it => {
-    // direção real aproximada (RA/Dec) convertida para coordenadas eclípticas
+    // Approximate real direction (RA/Dec) converted to ecliptic coordinates
     const ra = (it.ra_h || 0) * 15 * rad, de = (it.dec_deg || 0) * rad;
     const xe = Math.cos(de) * Math.cos(ra), ye = Math.cos(de) * Math.sin(ra), ze = Math.sin(de);
     const xc = xe, yc = ye * Math.cos(eps) + ze * Math.sin(eps), zc = -ye * Math.sin(eps) + ze * Math.cos(eps);
@@ -890,7 +877,6 @@ function fly(la, lo, k) {
 function tickAnimation(dt) {
   if (calm) return false;
   let moved = false;
-  // Body globe spin
   if (currentMode === "body" && bodyGlobe && !cur.id) {
     bodyGlobe.rotation.y += 0.08 * dt;
     bodyGlobe.updateMatrixWorld(true);
@@ -901,7 +887,6 @@ function tickAnimation(dt) {
     markers.forEach(m => { m.rotation.y += 0.5 * dt; });
     moved = true;
   }
-  // Hub: spin + moon translation around Earth
   if (currentMode === "hub" && hubBodies.terra) {
     const spin = { terra: 0.25, lua: 0.05, marte: 0.2, sol: 0.04, espaco: 0.18 };
     Object.keys(hubBodies).forEach(k => {
@@ -918,7 +903,7 @@ function tickAnimation(dt) {
         0,
         e.z + Math.sin(a) * hubMoonOrbit.dist
       );
-      // atmosphere shells that follow
+      // shells that follow the Moon
       hubGroup && hubGroup.children.forEach(ch => {
         if (ch.userData && ch.userData.follow === "lua") ch.position.copy(hubBodies.lua.position);
         if (ch.userData && ch.userData.follow === "terra") ch.position.copy(hubBodies.terra.position);
@@ -945,7 +930,7 @@ function loop(ts) {
   if (renderer && scene && camera) renderer.render(scene, camera);
 }
 
-/* ---------- App logic (unchanged structure) ---------- */
+/* ---------- App logic ---------- */
 const fmtC = (la, lo) => `${nf(Math.abs(la).toFixed(1))}° ${la >= 0 ? "N" : "S"}, ${nf(Math.abs(lo).toFixed(1))}° ${lo >= 0 ? t().E : t().W}`;
 
 function cardHtml(it) {
@@ -966,7 +951,7 @@ function cardHtml(it) {
 
 const up = () => { location.hash = cur.id ? "#" + cur.b : ""; };
 
-// Foto da NASA de fundo; se não carregar (ou não existir), usa o modelinho 3D do item
+// NASA photo as background; falls back to the item's 3D model if it fails to load or doesn't exist
 function setCardBg(el) {
   if (!el) return;
   const fallback = () => {
@@ -1091,7 +1076,7 @@ function render(quiet) {
   else if (renderer) draw();
   if (currentMode === "body") recolorMarkers(ni);
 
-  // Espaço profundo: gira a câmera para enquadrar a sonda escolhida (à direita do card)
+  // Deep space: rotates the camera to frame the selected probe (to the right of the card)
   if (renderer && it && nb === "espaco" && ni !== prev.id) {
     const m = markers.find(q => q.userData.id === ni);
     if (m) { drag.deepAngle = Math.atan2(m.position.x, m.position.z) - 0.2; applyDeepCam(); }
@@ -1106,7 +1091,7 @@ function render(quiet) {
   }
 }
 
-/* Event wiring */
+/* ---------- Event wiring ---------- */
 $("#hubb").onclick = e => {
   const x = e.target.closest("[data-b]");
   if (x) location.hash = "#" + x.dataset.b;
@@ -1233,7 +1218,6 @@ cv.addEventListener("pointerup", onPointerUp);
 cv.addEventListener("pointercancel", onPointerUp);
 cv.addEventListener("lostpointercapture", () => { drag.active = false; });
 
-// Mouse wheel zoom
 cv.addEventListener("wheel", e => {
   if (!currentMode) return;
   e.preventDefault();
@@ -1273,7 +1257,7 @@ document.addEventListener("keydown", e => {
 });
 
 let vlOn = 0;
-// O VLibras guarda "aberto" no navegador e reabre sozinho na visita seguinte (ruim no celular, onde cobre a tela).
+// VLibras saves its "open" state in the browser and reopens on the next visit (bad on phones, where it covers the screen)
 function vlNoAutoOpen() {
   try {
     const k = "@vlibras-widget", raw = localStorage.getItem(k);
@@ -1312,7 +1296,7 @@ function libras() {
         a.style.right = "16px";
         a.style.bottom = "calc(16px + env(safe-area-inset-bottom,0px))";
       }
-      // se o widget abriu sozinho (auto), fecha; um toque do usuário no botão (auto=false) é respeitado
+      // if the widget opened by itself (auto), close it; a user tap on the button (auto=false) is respected
       const root = document.getElementById("vlibras-app-root");
       if (root && root.dataset.auto === "true" && root.dataset.active === "true") root.dataset.active = "false";
       if (++n > 50) clearInterval(iv);
@@ -1379,7 +1363,7 @@ $("#app").addEventListener("animationend", e => { if (e.animationName === "scan"
 addEventListener("resize", () => { onResize(); if (currentMode === "hub") buildHub(); else needsRender = true; });
 addEventListener("hashchange", () => render());
 
-/* Brilhos e tela de carregamento */
+/* ---------- Sparkles and loading screen ---------- */
 {
   const sp = document.querySelector(".sparkles");
   for (let i = 0; i < 12; i++) {
@@ -1390,7 +1374,7 @@ addEventListener("hashchange", () => render());
 }
 const bootDone = () => setTimeout(() => $("#boot").classList.add("done"), 500);
 
-/* Boot */
+/* ---------- Boot ---------- */
 if (!initThree()) {
   document.documentElement.classList.add("nogl");
   $("#err").textContent = t().nogl;

@@ -58,7 +58,7 @@ body {
     height: 100%;
     margin: 0;
 }
-/* Céu: roxo e verde-azulado profundos, com estrelas pequenas */
+/* Sky: deep purple and teal, with small stars */
 body {
     background:
         radial-gradient(1px 1px at 20px 30px,#ffffffb0,transparent),
@@ -91,7 +91,7 @@ html.calm #cv {
     width: 100%;
     height: 100%;
 }
-/* Painéis: vidro escuro, linha fina e uma barra laranja na borda esquerda */
+/* Panels: dark glass, thin line and an orange bar on the left edge */
 .p,
 #ap {
     background: #141c3cd9;
@@ -182,7 +182,7 @@ button[aria-pressed=true] {
     background: var(--panel);
     border-radius: 8px;
 }
-/* Hub: mapa do sistema solar. O canvas desenha; os botões HTML ficam por cima. */
+/* Hub: solar system map. The canvas draws; the HTML buttons sit on top. */
 #hub {
     position: absolute;
     inset: 0;
@@ -526,7 +526,7 @@ dialog li {
         bottom: 74px;
     }
 }
-/* Transição entre telas: um anel de luz que se expande do centro */
+/* Screen transition: a ring of light expanding from the center */
 #app::after {
     content: "";
     position: absolute;
@@ -558,7 +558,7 @@ html.hc #app::after {
     display: none;
 }
 
-/* Card: foto (ou modelinho) de fundo + gradiente atrás do texto */
+/* Card: photo (or 3D model) as background + gradient behind the text */
 #card { padding: 0; }
 .card-bg {
   position: sticky; top: 0; height: 190px; margin-bottom: -90px;
@@ -572,7 +572,7 @@ html.hc #app::after {
 html.hc .card-bg { display: none; }
 html.hc .card-body { background: #000; padding-top: 14px; }
 
-/* ---- Visual moderno: cantos arredondados, movimento suave, brilhos ---- */
+/* ---------- Modern look: rounded corners, smooth motion, glows ---------- */
 button { transition: transform .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease; }
 button:not(.pl):hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px #0006; border-color: var(--ac); }
 button:not(.pl):active:not(:disabled) { transform: translateY(0) scale(.97); }
@@ -585,7 +585,7 @@ button:not(.pl):active:not(:disabled) { transform: translateY(0) scale(.97); }
 #ul button[aria-current=true] { background: #ffa94d26; }
 .card-bg { border-radius: 8px 8px 0 0; }
 
-/* Brilhos piscando (estrelinhas de 4 pontas, cor sólida) */
+/* Twinkling sparkles (4-point stars, solid color) */
 .sparkles { position: absolute; inset: 0; pointer-events: none; }
 .sparkles i {
     position: absolute; width: 10px; height: 10px; background: #fff; opacity: 0;
@@ -598,7 +598,7 @@ button:not(.pl):active:not(:disabled) { transform: translateY(0) scale(.97); }
 @keyframes twinkle { 0%,100% { opacity: 0; transform: scale(.3) rotate(0); } 50% { opacity: .9; transform: scale(1) rotate(45deg); } }
 html.calm .sparkles, html.hc .sparkles { display: none; }
 
-/* Tela de carregamento */
+/* Loading screen */
 #boot {
     position: fixed; inset: 0; z-index: 20; display: grid; place-content: center; justify-items: center; gap: 18px;
     background: var(--bg); transition: opacity .5s ease, visibility .5s;
@@ -652,7 +652,7 @@ dialog .card-x { top: 12px; right: 14px; }
 dialog::backdrop { background: #0009; }
 html.hc dialog { background: #000; border: 2px solid #fff; }
 
-/* Sem WebGL: hub vira uma fileira de botões HTML (lista, cards e Ouvir continuam) */
+/* No WebGL: the hub becomes a row of HTML buttons (list, cards and Listen keep working) */
 html.nogl #cv,
 html.nogl .sparkles {
     display: none;
