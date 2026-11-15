@@ -1,65 +1,72 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Achados e Perdidos Cósmicos</title>
-    <link rel="stylesheet" href="css/styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Achados e Perdidos Cósmicos</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div id="app">
-        <canvas id="cv" aria-hidden="true"></canvas>
-        <nav id="tl" aria-label="Navegação">
-            <button id="back"><span aria-hidden="true">←</span> <span data-t="back"></span></button>
-            <ol id="bc" class="p"></ol>
-            <p id="seal"></p>
-        </nav>
-        <main id="hub">
-            <h1 id="h1">Achados e Perdidos Cósmicos</h1>
-            <p id="hint"></p>
-            <p id="prog"></p>
-            <p id="err" role="alert" hidden></p>
-            <div id="hubb"></div>
-        </main>
-        <aside id="list" class="p" hidden>
-            <h2 id="lh"></h2>
-            <ul id="ul"></ul>
-        </aside>
-        <article id="card" class="p" tabindex="-1" aria-labelledby="ct" hidden></article>
-        <div id="bl">
-            <button id="lp" aria-pressed="false">PT</button>
-            <button id="le" aria-pressed="false">EN</button>
-            <button id="ab" aria-expanded="false" aria-controls="ap" data-t="acc"></button>
-            <div id="ap" hidden>
-                <label><input type="checkbox" id="chc"> <span data-t="hc"></span></label>
-                <label><input type="checkbox" id="cca"> <span data-t="calm"></span></label>
-                <label><span data-t="fs"></span>
-                    <select id="fsz">
-                        <option value="0" data-t="fs0"></option>
-                        <option value="1" data-t="fs1"></option>
-                        <option value="2" data-t="fs2"></option>
-                    </select>
-                </label>
-                <label><input type="checkbox" id="csp"> <span data-t="sp"></span></label>
-                <button id="rs" data-t="reset"></button>
-                <button id="ad" data-t="about"></button>
-            </div>
-        </div>
-        <div id="ft"><button id="fd" data-t="about"></button></div>
-        <div id="live" class="sr" role="status" aria-live="polite"></div>
-    </div>
-    <div id="libras" vw class="enabled" hidden>
-        <div vw-access-button class="active"></div>
-        <div vw-plugin-wrapper>
-            <div class="vw-plugin-top-wrapper"></div>
-        </div>
-    </div>
-    <dialog id="dlg" aria-labelledby="dt">
-        <h2 id="dt"></h2>
-        <p id="dn"></p>
-        <ul id="dl"></ul>
-        <form method="dialog"><button id="dc"></button></form>
-    </dialog>
-    <script src="js/app.js" defer></script>
+<div id="app">
+<canvas id="cv" aria-hidden="true"></canvas>
+<nav id="tl" aria-label="Navegação" hidden>
+<button id="back"><span aria-hidden="true">←</span> <span data-t="back"></span></button>
+<ol id="bc" class="p"></ol>
+<p id="seal"></p>
+</nav>
+<main id="hub">
+<header id="hh">
+<h1 id="h1">Achados e Perdidos Cósmicos</h1>
+<p id="hint"></p>
+</header>
+<p id="err" role="alert" hidden></p>
+<div id="hubb"></div>
+<footer id="hubcap">
+<p id="hcap"></p>
+<p id="hdist"></p>
+<p id="prog"></p>
+</footer>
+</main>
+<aside id="list" class="p" hidden>
+<h2 id="lh"></h2>
+<ul id="ul"></ul>
+</aside>
+<article id="card" class="p" tabindex="-1" aria-labelledby="ct" hidden></article>
+<div id="bl">
+<button id="lp" aria-pressed="false">PT</button>
+<button id="le" aria-pressed="false">EN</button>
+<button id="ab" aria-expanded="false" aria-controls="ap" data-t="acc"></button>
+<div id="ap" hidden>
+<label><input type="checkbox" id="chc"> <span data-t="hc"></span></label>
+<label><input type="checkbox" id="cca"> <span data-t="calm"></span></label>
+<label><span data-t="fs"></span>
+<select id="fsz">
+<option value="0" data-t="fs0"></option>
+<option value="1" data-t="fs1"></option>
+<option value="2" data-t="fs2"></option>
+</select>
+</label>
+<label><input type="checkbox" id="csp"> <span data-t="sp"></span></label>
+<button id="rs" data-t="reset"></button>
+<button id="ad" data-t="about"></button>
+</div>
+</div>
+<div id="ft"><button id="fd" data-t="about"></button></div>
+<div id="live" class="sr" role="status" aria-live="polite"></div>
+</div>
+<div id="libras" vw class="enabled" hidden>
+<div vw-access-button class="active"></div>
+<div vw-plugin-wrapper>
+<div class="vw-plugin-top-wrapper"></div>
+</div>
+</div>
+<dialog id="dlg" aria-labelledby="dt">
+<h2 id="dt"></h2>
+<p id="dn"></p>
+<ul id="dl"></ul>
+<form method="dialog"><button id="dc"></button></form>
+</dialog>
+<script src="js/app.js" defer></script>
 </body>
 </html>

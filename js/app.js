@@ -47,6 +47,8 @@ const T = {
         err: "Não foi possível carregar os dados. Abra por um servidor (ex.: python3 -m http.server).",
         st: { ativo: "Ativo", silencioso: "Silencioso", "concluído": "Concluído" },
         nm: { terra: "Terra", lua: "Lua", marte: "Marte", espaco: "Espaço profundo" },
+        hcap: d => `Posições reais em ${d}, vistas de cima. Sol, planetas e a distância da Lua estão ampliados.`,
+        hdist: (u, m) => `Terra–Marte hoje: ${u} UA (luz: ${m} min) · Terra–Lua: 384.400 km (luz: 1,3 s)`,
         E: "L",
         W: "O"
     },
@@ -90,6 +92,8 @@ const T = {
         err: "Could not load the data. Open through a server (e.g. python3 -m http.server).",
         st: { ativo: "Active", silencioso: "Silent", "concluído": "Completed" },
         nm: { terra: "Earth", lua: "Moon", marte: "Mars", espaco: "Deep space" },
+        hcap: d => `Real positions on ${d}, seen from above. The Sun, planets and the Moon's distance are enlarged.`,
+        hdist: (u, m) => `Earth–Mars today: ${u} AU (light: ${m} min) · Earth–Moon: 384,400 km (light: 1.3 s)`,
         E: "E",
         W: "W"
     }
@@ -98,24 +102,19 @@ let lang = ls("lang") || ((navigator.language || "pt").startsWith("en") ? "en" :
 let seenIds = new Set((() => { try { return JSON.parse(ls("seen") || "[]") } catch (e) { return [] } })());
 let cur = { b: "", id: "" }, last = { b: "", id: "" }, cam = { lat: 15, lng: 0, k: 1 }, tw, pins = [];
 const t = () => T[lang], g = (it, k) => it[k + "_" + lang], nf = n => lang === "pt" ? String(n).replace(".", ",") : String(n);
-const ORB = {
-    terra: "radial-gradient(circle at 35% 30%,#5bd37a 0 18%,#1f6fd1 20%)",
-    lua: "radial-gradient(circle at 35% 30%,#d6dade,#8a9099)",
-    marte: "radial-gradient(circle at 35% 30%,#f59a5c,#c4531e)",
-    espaco: "radial-gradient(circle at 70% 35%,#fff 0 2px,transparent 3px),radial-gradient(circle,#1a1f55,#05081c)"
-};
 let s = 7;
 const rnd = () => (s = s * 16807 % 2147483647) / 2147483647;
+const ATM = { terra: "#6cc4ff", lua: "#fff1c8", marte: "#ff8a5c" };
 const BL = {
     terra: [
-        "#1f6fd1",
-        [["#3aa655", [[48, -100, 28], [-14, -60, 20], [6, 20, 24], [52, 75, 34], [-25, 134, 12]]]]
+        "#2a7de1",
+        [["#43b86b", [[48, -100, 28], [-14, -60, 20], [6, 20, 24], [52, 75, 34], [-25, 134, 12]]]]
     ],
     lua: [
-        "#9aa0a8",
+        "#cdbf9d",
         [
             [
-                "#7d838b",
+                "#a89b7c",
                 Array.from({ length: 30 }, () => [
                     rnd() * 140 - 70,
                     rnd() * 360 - 180,
@@ -125,10 +124,10 @@ const BL = {
         ]
     ],
     marte: [
-        "#d9692f",
+        "#e0693a",
         [
-            ["#b8501f", [[10, 60, 22], [-20, -100, 18], [20, -30, 12]]],
-            ["#f3eadf", [[90, 0, 14], [-90, 0, 12]]]
+            ["#a8431f", [[10, 60, 22], [-20, -100, 18], [20, -30, 12]]],
+            ["#fff5ea", [[90, 0, 14], [-90, 0, 12]]]
         ]
     ]
 };
@@ -137,6 +136,179 @@ const PAL = () => hc
     ? { ring: "#fff", sun: "#ffb000", ln: "#fff", on: "#ffb000", off: "#fff", txt: "#fff", edge: "#000", grid: null, lw: 3, pr: 3 }
     : { ring: "#3fd0ff55", sun: "#ffd166", ln: "#3fd0ff88", on: "#ff9a3c", off: "#e8f4ff", txt: "#e8f4ff", edge: "#050b1f", grid: "#ffffff26", lw: 1, pr: 2 };
 const cv = $("#cv"), ctx = cv.getContext("2d");
+/* Efemérides aproximadas: elementos keplerianos da JPL (válidos de 1800 a 2050).
+   Servem para posicionar Terra, Marte e Lua; não são para navegação. */
+const EL = {
+    terra: [1.00000261, 0.00000562, 0.01671123, -0.00004392, -0.00001531, -0.01294668, 100.46457166, 35999.37244981, 102.93768193, 0.32327364, 0, 0],
+    marte: [1.52371034, 0.00001847, 0.09339410, 0.00007882, 1.84969142, -0.00813131, -4.55343205, 19140.30268499, -23.94362959, 0.44441088, 49.55953891, -0.29257343]
+};
+const PER = { terra: 365.256, marte: 686.98 };
+const norm = d => ((d % 360) + 360) % 360;
+function helio(k, jd) {
+    const T = (jd - 2451545) / 36525, e = EL[k], a = e[0] + e[1] * T, ec = e[2] + e[3] * T, I = (e[4] + e[5] * T) * rad;
+    const L = e[6] + e[7] * T, w = e[8] + e[9] * T, N = (e[10] + e[11] * T) * rad, M = norm(L - w) * rad, wp = w * rad - N;
+    let E = M + ec * Math.sin(M);
+    for (let i = 0; i < 8; i++) E -= (E - ec * Math.sin(E) - M) / (1 - ec * Math.cos(E));
+    const xp = a * (Math.cos(E) - ec), yp = a * Math.sqrt(1 - ec * ec) * Math.sin(E), cw = Math.cos(wp), sw = Math.sin(wp), cN = Math.cos(N), sN = Math.sin(N), cI = Math.cos(I);
+    return [(cw * cN - sw * sN * cI) * xp + (-sw * cN - cw * sN * cI) * yp, (cw * sN + sw * cN * cI) * xp + (-sw * sN + cw * cN * cI) * yp]
+}
+function elong(jd) {
+    const T = (jd - 2451545) / 36525, D = norm(297.8501921 + 445267.1114034 * T), M = norm(357.5291092 + 35999.0502909 * T), Mp = norm(134.9633964 + 477198.8675055 * T);
+    return norm(D + 6.289 * Math.sin(Mp * rad) - 0.186 * Math.sin(M * rad))
+}
+/* "?d=2026-02-19" mostra o céu de outra data (útil para demonstrar e testar) */
+const skyJD = () => { const q = new URLSearchParams(location.search).get("d"), t0 = q ? Date.parse(q + "T12:00:00Z") : NaN; return (isNaN(t0) ? Date.now() : t0) / 864e5 + 2440587.5 };
+const skyDate = () => new Date((skyJD() - 2440587.5) * 864e5).toLocaleDateString(lang === "pt" ? "pt-BR" : "en-US", { day: "numeric", month: "long", year: "numeric" });
+const distEM = () => { const j = skyJD(), a = helio("terra", j), b = helio("marte", j); return Math.hypot(a[0] - b[0], a[1] - b[1]) };
+function orb(x, y, r, cols, sun, glow) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 7);
+    if (hc) {
+        ctx.fillStyle = cols[1];
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        return
+    }
+    const dx = sun[0] - x, dy = sun[1] - y, dl = Math.hypot(dx, dy) || 1, g = ctx.createRadialGradient(x + dx / dl * r * .45, y + dy / dl * r * .45, r * .1, x, y, r * 1.05);
+    g.addColorStop(0, cols[0]);
+    g.addColorStop(.55, cols[1]);
+    g.addColorStop(1, cols[2]);
+    if (glow && !calm) {
+        ctx.shadowColor = glow;
+        ctx.shadowBlur = r * 1.1
+    }
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.shadowBlur = 0
+}
+function hubScene() {
+    const w = cv.clientWidth, h = cv.clientHeight, m = w < 700, P = PAL(), jd = skyJD();
+    const top = 100, bot = m ? 230 : 134, cx = w / 2, cy = top + (h - top - bot) / 2, U = Math.max(40, Math.min((w - 24) / 2, (h - top - bot) / 2) / 1.72);
+    const Ee = helio("terra", jd), Mm = helio("marte", jd), X = p => cx + p[0] * U, Y = p => cy - p[1] * U;
+    const ed = Math.min(56, Math.max(30, U * .36)), md = ed * .53, od = ed * .27, ep = [X(Ee), Y(Ee)], mp = [X(Mm), Y(Mm)];
+    const ml = Math.atan2(-Ee[1], -Ee[0]) + elong(jd) * rad, mdist = ed / 2 + 30, op = [ep[0] + Math.cos(ml) * mdist, ep[1] - Math.sin(ml) * mdist], sun = [cx, cy];
+    const free = [[w - Math.max(80, w * .14), top + (h - top - bot) * .2], [w - Math.max(80, w * .14), top + (h - top - bot) * .82]];
+    const pp = free.sort((a, b) => Math.min(Math.hypot(b[0] - mp[0], b[1] - mp[1]), Math.hypot(b[0] - ep[0], b[1] - ep[1])) - Math.min(Math.hypot(a[0] - mp[0], a[1] - mp[1]), Math.hypot(a[0] - ep[0], a[1] - ep[1])))[0];
+    if (!hc) {
+        let q = 11;
+        const rn = () => (q = q * 16807 % 2147483647) / 2147483647;
+        for (let i = 0; i < Math.round(w * h / 5200); i++) {
+            ctx.fillStyle = `rgba(255,255,255,${.25 + rn() * .6})`;
+            ctx.fillRect(rn() * w, rn() * h, rn() < .12 ? 2 : 1, rn() < .12 ? 2 : 1)
+        }
+    }
+    ctx.lineWidth = hc ? 2 : 1;
+    ctx.strokeStyle = hc ? "#fff" : "#ffffff30";
+    ["terra", "marte"].forEach(k => {
+        ctx.beginPath();
+        for (let i = 0; i <= 120; i++) {
+            const p = helio(k, jd + PER[k] * i / 120);
+            i ? ctx.lineTo(X(p), Y(p)) : ctx.moveTo(X(p), Y(p))
+        }
+        ctx.stroke()
+    });
+    ctx.beginPath();
+    ctx.arc(ep[0], ep[1], mdist, 0, 7);
+    ctx.stroke();
+    ctx.save();
+    ctx.setLineDash([3, 6]);
+    ctx.strokeStyle = hc ? "#fff" : "#5ce1e688";
+    ctx.beginPath();
+    ctx.moveTo(ep[0], ep[1]);
+    ctx.lineTo(mp[0], mp[1]);
+    ctx.stroke();
+    const a = Math.atan2(pp[1] - cy, pp[0] - cx);
+    [-.2, 0, .2].forEach(o => {
+        const sx = cx + Math.cos(a + o) * U * 1.78, sy = cy + Math.sin(a + o) * U * 1.78, ang = Math.atan2(pp[1] - sy, pp[0] - sx), ex = pp[0] - Math.cos(ang) * 36, ey = pp[1] - Math.sin(ang) * 36;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(ex, ey);
+        ctx.stroke()
+    });
+    ctx.restore();
+    if (hc) {
+        ctx.fillStyle = P.sun;
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 14, 0, 7);
+        ctx.fill();
+        ctx.stroke()
+    } else {
+        const R = calm ? 30 : 64, g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+        g.addColorStop(0, "#fffbe0");
+        g.addColorStop(.2, "#ffd166");
+        g.addColorStop(.45, calm ? "#ffd16644" : "#ff9a3c66");
+        g.addColorStop(1, "#ff9a3c00");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(cx, cy, R, 0, 7);
+        ctx.fill()
+    }
+    orb(ep[0], ep[1], ed / 2, ["#9be1ff", "#2f86e8", "#06163d"], sun, ATM.terra + "aa");
+    orb(mp[0], mp[1], md / 2, ["#ffc08a", "#e0693a", "#2a0b08"], sun, ATM.marte + "88");
+    orb(op[0], op[1], od / 2, ["#fffbea", "#cfc3a3", "#15141a"], sun, "#fff1c866");
+    ctx.strokeStyle = hc ? "#fff" : "#5ce1e6";
+    ctx.lineWidth = hc ? 3 : 1.5;
+    [20, 29].forEach((r, i) => {
+        ctx.globalAlpha = hc ? 1 : i ? .35 : .8;
+        ctx.beginPath();
+        ctx.arc(pp[0], pp[1], r, 0, 7);
+        ctx.stroke()
+    });
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = hc ? "#fff" : "#5ce1e6";
+    ctx.beginPath();
+    ctx.arc(pp[0], pp[1], 4, 0, 7);
+    ctx.fill();
+    const H = document.querySelectorAll("#hubb .pl");
+    if (!H.length) return;
+    const place = (k, [x, y], d) => {
+        const b = $(`#hubb [data-b="${k}"]`), z = Math.max(44, d + 14);
+        b.style.left = x + "px";
+        b.style.top = y + "px";
+        b.style.width = b.style.height = z + "px"
+    };
+    place("terra", ep, ed);
+    place("lua", op, od);
+    place("marte", mp, md);
+    place("espaco", pp, 58);
+    /* Posição dos rótulos: tenta cada lado até achar um sem sobreposição e dentro da tela */
+    const dy = op[1] - ep[1], inter = (a, b, g) => Math.max(0, Math.min(a.right + g, b.right) - Math.max(a.left - g, b.left)) * Math.max(0, Math.min(a.bottom + g, b.bottom) - Math.max(a.top - g, b.top));
+    const cr = ["tr", "tl", "br", "bl"], pref = { terra: (dy < 0 ? ["b", "t", "r", "l"] : ["t", "b", "r", "l"]).concat(cr), lua: (dy < 0 ? ["t", "r", "l", "b"] : ["b", "r", "l", "t"]).concat(cr), marte: ["b", "t", "r", "l"].concat(cr), espaco: ["b", "t", "l", "r"].concat(cr) }, done = [];
+    ["terra", "lua", "marte", "espaco"].forEach(k => {
+        const b = $(`#hubb [data-b="${k}"]`), l = b.firstElementChild, others = [...H].filter(o => o !== b).map(o => o.getBoundingClientRect());
+        const find = () => {
+            let best = null;
+            for (const sd of pref[k]) {
+                b.dataset.side = sd;
+                l.style.setProperty("--sx", "0px");
+                let r = l.getBoundingClientRect();
+                const sx = sd === "t" || sd === "b" ? (r.left < 8 ? 8 - r.left : r.right > w - 8 ? w - 8 - r.right : 0) : 0;
+                l.style.setProperty("--sx", sx + "px");
+                r = l.getBoundingClientRect();
+                /* penalidade = área sobreposta a outros rótulos e corpos + o quanto sai da área útil */
+                const pen = done.reduce((s, d) => s + inter(r, d, 3), 0) + others.reduce((s, o) => s + inter(r, o, 2), 0) + 40 * (Math.max(0, top - 14 - r.top) + Math.max(0, r.bottom - (h - bot + 30)) + Math.max(0, 6 - r.left) + Math.max(0, r.right - (w - 6)));
+                if (!best || pen < best[0]) best = [pen, sd, sx];
+                if (!pen) break
+            }
+            return best
+        };
+        l.classList.remove("mini");
+        let best = find();
+        /* ainda não coube: mostra só o nome (a contagem continua lida por leitores de tela) */
+        if (best[0]) {
+            l.classList.add("mini");
+            const b2 = find();
+            if (b2[0] < best[0]) best = b2; else l.classList.remove("mini")
+        }
+        b.dataset.side = best[1];
+        l.style.setProperty("--sx", best[2] + "px");
+        done.push(l.getBoundingClientRect())
+    })
+}
 function proj(la, lo, c) {
     const p = la * rad, l = (lo - c.lng) * rad, p0 = c.lat * rad, v = Math.sin(p0) * Math.sin(p) + Math.cos(p0) * Math.cos(p) * Math.cos(l);
     let x = Math.cos(p) * Math.sin(l), y = Math.cos(p0) * Math.sin(p) - Math.sin(p0) * Math.cos(p) * Math.cos(l);
@@ -178,7 +350,7 @@ function draw() {
     ctx.clearRect(0, 0, w, h);
     pins = [];
     const b = cur.b, P = PAL();
-    if (!b) return;
+    if (!b) return hubScene();
     const m = w < 700, its = ITEMS.filter(i => i.corpo === b);
     if (b === "espaco") {
         const sx = w * .16, sy = m ? h * .35 : h / 2, Rm = Math.min(w * .7, h * .7);
@@ -220,9 +392,14 @@ function draw() {
         R: Math.min(w, h) * (m ? .3 : .32) * cam.k
     }, [base, fs] = BL[b];
     ctx.fillStyle = base;
+    if (!hc && !calm) {
+        ctx.shadowColor = ATM[b] + "99";
+        ctx.shadowBlur = c.R * .22
+    }
     ctx.beginPath();
     ctx.arc(c.cx, c.cy, c.R, 0, 7);
     ctx.fill();
+    ctx.shadowBlur = 0;
     ctx.save();
     ctx.clip();
     fs.forEach(([col, l]) => {
@@ -241,8 +418,16 @@ function draw() {
         lo
     ]), c);
     }
+    if (!hc) {
+        const sh = ctx.createRadialGradient(c.cx - c.R * .4, c.cy - c.R * .4, c.R * .1, c.cx, c.cy, c.R * 1.05);
+        sh.addColorStop(0, "#ffffff2e");
+        sh.addColorStop(.55, "#00000000");
+        sh.addColorStop(1, "#0a0830aa");
+        ctx.fillStyle = sh;
+        ctx.fillRect(c.cx - c.R, c.cy - c.R, c.R * 2, c.R * 2)
+    }
     ctx.restore();
-    ctx.strokeStyle = hc ? "#fff" : "#3fd0ff";
+    ctx.strokeStyle = hc ? "#fff" : "#ffffff66";
     ctx.lineWidth = 2 + P.pr - 2;
     ctx.beginPath();
     ctx.arc(c.cx, c.cy, c.R, 0, 7);
@@ -316,16 +501,21 @@ function render(quiet) {
     $("#lp").setAttribute("aria-pressed", lang === "pt");
     $("#le").setAttribute("aria-pressed", lang === "en");
     $("#hint").textContent = tt.hint;
-    $("#hubb").innerHTML = `<svg class="cl cl-d" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><polyline points="16,68 38,36 62,62 84,30"/></svg><svg class="cl cl-m" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><polyline points="28,12 72,36 28,62 72,88"/></svg>` + BODIES.map(k => {
+    const dEM = distEM();
+    $("#hubb").innerHTML = BODIES.map(k => {
         const n = ITEMS.filter(i => i.corpo === k).length, dn = ITEMS.filter(i => i.corpo === k && seenIds.has(i.id)).length;
-        return `<button class="p pl" data-b="${k}"><span class="orb" style="background:${ORB[k]}"></span><b>${tt.nm[k]}</b><small>${n} ${n===1?tt.item:tt.items}</small><small>${dn}/${n} ${tt.explored}${n && dn === n ? " ✓" : ""}</small></button>`
+        return `<button class="pl" data-b="${k}"><span class="lbl"><b>${tt.nm[k]}</b><small>${n} ${n===1?tt.item:tt.items} · ${dn}/${n} ${tt.explored}${n && dn === n ? " ✓" : ""}</small></span></button>`
     }).join("");
+    $("#hcap").textContent = tt.hcap(skyDate());
+    $("#hdist").textContent = tt.hdist(nf(dEM.toFixed(1)), nf(Math.round(dEM * 8.317)));
+    $("#tl").hidden = !nb;
+    $("#seal").hidden = !nb;
     $("#prog").textContent = tt.prog(ITEMS.filter(i => seenIds.has(i.id)).length, ITEMS.length);
     $("#hub").hidden = !!nb;
     $("#list").hidden = !nb;
     A.classList.toggle("item", !!ni);
     $("#back").disabled = !nb;
-    const gl = nb && nb !== "espaco", sealT = gl ? tt.globe : tt.nsc;
+    const gl = nb && nb !== "espaco", sealT = !nb ? tt.hcap(skyDate()) : gl ? tt.globe : tt.nsc;
     $("#seal").textContent = sealT;
     $("#seal").lang = lang;
     $("#bc").innerHTML = `<li>${tt.all}</li>` + (nb ? `<li>${tt.nm[nb]}</li>` : "") + (it ? `<li>${it.nome}</li>` : "");

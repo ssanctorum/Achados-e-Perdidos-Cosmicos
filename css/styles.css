@@ -10,20 +10,14 @@
     font-display: swap;
     src: url("../fonts/lexend-latin-700-normal.woff2") format("woff2");
 }
-@font-face {
-    font-family: Orbitron;
-    font-weight: 700;
-    font-display: swap;
-    src: url("../fonts/orbitron-latin-700-normal.woff2") format("woff2");
-}
 :root {
-    --bg: #050b1f;
-    --panel: #0b1a3af2;
-    --bd: #3fd0ff;
-    --tx: #e8f4ff;
-    --ac: #ff9a3c;
+    --bg: #070a1c;
+    --panel: #0a0e22d9;
+    --bd: #ffffff80;
+    --tx: #f4f7ff;
+    --ac: #ffa94d;
+    --ac2: #5ce1e6;
     --wn: #ffd166;
-    --glow: 0 0 12px #3fd0ff55;
     color-scheme: dark;
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top,0px);
@@ -50,11 +44,8 @@ html.hc {
     --bd: #fff;
     --tx: #fff;
     --ac: #ffb000;
+    --ac2: #fff;
     --wn: #fff;
-    --glow: none;
-}
-html.calm {
-    --glow: none;
 }
 * {
     box-sizing: border-box;
@@ -67,14 +58,17 @@ body {
     height: 100%;
     margin: 0;
 }
+/* Céu: roxo e verde-azulado profundos, com estrelas pequenas */
 body {
     background:
         radial-gradient(1px 1px at 20px 30px,#ffffffb0,transparent),
         radial-gradient(1px 1px at 140px 90px,#ffffff80,transparent),
         radial-gradient(1.5px 1.5px at 80px 160px,#cfeaffa0,transparent),
-        radial-gradient(circle at 18% 22%,#12306b,transparent 42%),
+        radial-gradient(ellipse 70% 60% at 15% 12%,#5b2a8a66,transparent 70%),
+        radial-gradient(ellipse 60% 55% at 88% 85%,#0f8a9a4d,transparent 70%),
+        radial-gradient(ellipse 50% 40% at 70% 10%,#b8458a33,transparent 70%),
         var(--bg);
-    background-size: 200px 200px,260px 260px,330px 330px,auto,auto;
+    background-size: 200px 200px,260px 260px,330px 330px,auto,auto,auto,auto;
     color: var(--tx);
     font: 1rem/var(--lh,1.5) Lexend,system-ui,"Segoe UI",Roboto,sans-serif;
     letter-spacing: var(--ls,0);
@@ -97,12 +91,19 @@ html.calm #cv {
     width: 100%;
     height: 100%;
 }
+/* Painéis: vidro escuro, linha fina e uma barra laranja na borda esquerda */
 .p,
 #ap {
     background: var(--panel);
     border: 1px solid var(--bd);
-    border-radius: 6px;
-    box-shadow: var(--glow);
+    border-radius: 3px;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+#card,
+#list {
+    box-shadow: inset 4px 0 0 var(--ac);
+    padding-left: 18px;
 }
 html.hc .p,
 html.hc #ap {
@@ -118,7 +119,7 @@ select {
     color: var(--tx);
     background: var(--panel);
     border: 1px solid var(--bd);
-    border-radius: 6px;
+    border-radius: 3px;
     min-height: 44px;
     padding: 6px 8px;
 }
@@ -127,7 +128,7 @@ button {
     color: var(--tx);
     background: var(--panel);
     border: 1px solid var(--bd);
-    border-radius: 6px;
+    border-radius: 3px;
     min-height: 44px;
     min-width: 44px;
     padding: 6px 12px;
@@ -179,102 +180,176 @@ button[aria-pressed=true] {
     font-size: .875rem;
     color: var(--wn);
     background: var(--panel);
-    border-radius: 4px;
+    border-radius: 3px;
 }
+/* Hub: mapa do sistema solar. O canvas desenha; os botões HTML ficam por cima. */
 #hub {
     position: absolute;
     inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 20px;
-    text-align: center;
-    padding: 110px 16px 70px;
-    overflow: auto;
-}
-#h1 {
-    margin-top: auto;
-}
-#hubb {
-    margin-bottom: auto;
-}
-h1 {
-    font-family: Orbitron,Lexend,system-ui,sans-serif;
-    font-size: clamp(1.3rem,4.2vw,2.3rem);
-    letter-spacing: .1em;
-    margin: 0;
-    font-weight: 700;
-}
-#hubb {
-    position: relative;
-    flex: none;
-    width: min(900px,100%);
-    height: min(360px,50vh);
-    min-height: 300px;
-}
-.cl {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
     pointer-events: none;
 }
-.cl polyline {
-    fill: none;
-    stroke: var(--bd);
-    stroke-width: 1.5;
-    stroke-dasharray: 4 5;
-    opacity: .55;
-    vector-effect: non-scaling-stroke;
+#hub > * {
+    pointer-events: auto;
 }
-.cl-m {
-    display: none;
+#hh {
+    position: absolute;
+    top: 18px;
+    left: 16px;
+    right: 16px;
+    text-align: center;
+    pointer-events: none;
 }
-html.hc .cl polyline {
-    stroke-dasharray: none;
-    stroke-width: 2;
-    opacity: 1;
+#h1 {
+    margin: 0;
+    font-size: clamp(1.1rem,3.6vw,1.8rem);
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+#hint {
+    margin: 6px 0 0;
+    font-size: .95rem;
+    color: var(--ac2);
+}
+html.hc #hint {
+    color: var(--tx);
+}
+#hubb {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+#hubcap {
+    position: absolute;
+    left: 50%;
+    bottom: 62px;
+    transform: translateX(-50%);
+    width: min(900px,calc(100% - 32px));
+    text-align: center;
+    pointer-events: none;
+}
+#hubcap p {
+    margin: 0 0 4px;
+    padding: 2px 8px;
+    font-size: .85rem;
+    opacity: .95;
+}
+#hcap {
+    color: var(--wn);
+}
+#hdist {
+    color: var(--ac2);
+}
+html.hc #hdist {
+    color: var(--tx);
 }
 .pl {
     position: absolute;
-    left: var(--x);
-    top: var(--y);
     transform: translate(-50%,-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 14px;
-    width: 140px;
-}
-.pl[data-b=terra] {
-    --x: 16%;
-    --y: 68%;
-}
-.pl[data-b=lua] {
-    --x: 38%;
-    --y: 36%;
-}
-.pl[data-b=marte] {
-    --x: 62%;
-    --y: 62%;
-}
-.pl[data-b=espaco] {
-    --x: 84%;
-    --y: 30%;
-}
-.orb {
-    width: 76px;
-    height: 76px;
+    padding: 0;
+    min-width: 0;
+    min-height: 0;
     border-radius: 50%;
-    border: 2px solid var(--bd);
-    animation: pu 2.6s ease-in-out infinite;
+    border: 2px solid transparent;
+    background: transparent;
+    pointer-events: auto;
 }
-@keyframes pu {
-    50% {
-        transform: scale(1.07);
+.pl:hover,
+.pl:focus-visible {
+    border-color: var(--ac);
+    background: #ffffff14;
+}
+.pl::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid var(--ac2);
+    opacity: 0;
+    pointer-events: none;
+    animation: ring 3.2s ease-out infinite;
+}
+@keyframes ring {
+    from {
+        transform: scale(.8);
+        opacity: .7;
     }
+    to {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+.lbl {
+    position: absolute;
+    width: max-content;
+    max-width: min(190px,calc(100vw - 16px));
+    padding: 3px 9px;
+    text-align: center;
+    background: #060818c4;
+    border-radius: 3px;
+}
+.pl[data-side=b] .lbl,
+.pl[data-side=t] .lbl {
+    left: 50%;
+    transform: translateX(calc(-50% + var(--sx,0px)));
+}
+.pl[data-side=b] .lbl {
+    top: calc(100% + 6px);
+}
+.pl[data-side=t] .lbl {
+    bottom: calc(100% + 6px);
+}
+.pl[data-side=r] .lbl,
+.pl[data-side=l] .lbl {
+    top: 50%;
+    transform: translateY(-50%);
+}
+.pl[data-side=r] .lbl {
+    left: calc(100% + 8px);
+    text-align: left;
+}
+.pl[data-side=l] .lbl {
+    right: calc(100% + 8px);
+    text-align: right;
+}
+.pl[data-side=tr] .lbl,
+.pl[data-side=br] .lbl {
+    left: calc(100% + 2px);
+    text-align: left;
+}
+.pl[data-side=tl] .lbl,
+.pl[data-side=bl] .lbl {
+    right: calc(100% + 2px);
+    text-align: right;
+}
+.pl[data-side=tr] .lbl,
+.pl[data-side=tl] .lbl {
+    bottom: calc(100% + 2px);
+}
+.pl[data-side=br] .lbl,
+.pl[data-side=bl] .lbl {
+    top: calc(100% + 2px);
+}
+.lbl b {
+    display: block;
+    font-size: .9rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+.lbl small {
+    font-size: .78rem;
+}
+.lbl.mini small {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+html.hc .lbl {
+    background: #000;
+    border: 2px solid #fff;
 }
 html.calm *,
 html.calm *::before,
@@ -297,12 +372,20 @@ html.calm *::after {
     width: 270px;
     max-height: 58vh;
     overflow: auto;
-    padding: 10px;
+    padding: 10px 10px 10px 18px;
     z-index: 3;
 }
 h2 {
-    font-size: 1.05rem;
-    margin: 0 0 6px;
+    font-size: .9rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+}
+#card h2 {
+    font-size: 1.3rem;
+    letter-spacing: .02em;
+    text-transform: none;
+    margin: 0 0 2px;
 }
 #ul {
     list-style: none;
@@ -331,7 +414,7 @@ small {
     width: min(360px,calc(100% - 32px));
     max-height: calc(100% - 230px);
     overflow: auto;
-    padding: 14px;
+    padding: 14px 14px 14px 18px;
     z-index: 4;
 }
 #card p {
@@ -392,7 +475,7 @@ dialog {
     background: var(--bg);
     color: var(--tx);
     border: 2px solid var(--bd);
-    border-radius: 8px;
+    border-radius: 4px;
     max-width: min(580px,92vw);
     max-height: 80vh;
 }
@@ -405,6 +488,19 @@ dialog a {
 }
 dialog li {
     margin: 0 0 8px;
+}
+#err {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(520px,calc(100% - 32px));
+    margin: 0;
+    padding: 8px 12px;
+    color: var(--wn);
+    background: var(--panel);
+    border: 1px solid var(--bd);
+    border-radius: 3px;
 }
 @media (max-width: 700px) {
     #list {
@@ -430,89 +526,38 @@ dialog li {
     #ft {
         display: none;
     }
-}
-    
-#err{margin:0;padding:8px 12px;color:var(--wn);background:var(--panel);border:1px solid var(--bd);border-radius:6px}
-@media (max-width: 700px) {
-    #hubb {
-        height: 480px;
-        width: min(420px,100%);
-    }
-    .cl-d {
-        display: none;
-    }
-    .cl-m {
-        display: block;
-    }
-    .pl[data-b=terra] {
-        --x: 28%;
-        --y: 12%;
-    }
-    .pl[data-b=lua] {
-        --x: 72%;
-        --y: 36%;
-    }
-    .pl[data-b=marte] {
-        --x: 28%;
-        --y: 62%;
-    }
-    .pl[data-b=espaco] {
-        --x: 72%;
-        --y: 88%;
+    #hubcap {
+        bottom: 74px;
     }
 }
-/* Visor: cantos chanfrados (só desktop; nada que receba foco por Tab é cortado) */
-@media (min-width: 701px) {
-    #list,
-    #card,
-    #bc {
-        border-radius: 0;
-        clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
-        background:
-            linear-gradient(135deg,transparent 5px,var(--bd) 5px 7.5px,transparent 7.5px) top left/12px 12px no-repeat,
-            linear-gradient(-45deg,transparent 5px,var(--bd) 5px 7.5px,transparent 7.5px) bottom right/12px 12px no-repeat,
-            var(--panel);
-    }
-    #card:focus-visible {
-        outline-offset: -4px;
-    }
-    html.hc #list,
-    html.hc #card,
-    html.hc #bc {
-        clip-path: none;
-        background: #000;
-    }
-}
-/* Visor: varredura curta ao trocar de tela (desligada em calmo, menos movimento e alto contraste) */
+/* Transição entre telas: um anel de luz que se expande do centro */
 #app::after {
     content: "";
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 3px;
-    background: linear-gradient(90deg,transparent,var(--bd),transparent);
+    left: 50%;
+    top: 50%;
+    width: 120vmax;
+    height: 120vmax;
+    margin: -60vmax 0 0 -60vmax;
+    border-radius: 50%;
+    background: radial-gradient(circle,transparent 58%,#ffffff2e 60%,transparent 64%);
     opacity: 0;
     pointer-events: none;
     z-index: 6;
 }
 #app.scan::after {
-    animation: scan .6s ease-out;
+    animation: scan .7s ease-out;
 }
 @keyframes scan {
     from {
-        top: 0;
-        opacity: .5;
+        transform: scale(.15);
+        opacity: 1;
     }
     to {
-        top: 100%;
+        transform: scale(1);
         opacity: 0;
     }
 }
 html.hc #app::after {
     display: none;
-}
-#prog {
-    margin: 0;
-    font-size: .95rem;
 }
