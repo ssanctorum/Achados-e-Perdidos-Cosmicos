@@ -44,6 +44,9 @@ for i in d:
     if i.get("corpo") == "espaco":
         if not isinstance(i.get("distancia_ua"), (int, float)) or not i.get("data_distancia"):
             erros.append(f"{k}: espaço profundo precisa de distancia_ua e data_distancia")
+    elif i.get("locais"):
+        if not all(-90 <= a <= 90 and -180 <= b <= 180 for a, b in i["locais"]):
+            erros.append(f"{k}: locais fora do intervalo")
     elif i.get("lat") is not None:
         if not (-90 <= i["lat"] <= 90 and -180 <= i["lng"] <= 180):
             erros.append(f"{k}: lat/lng fora do intervalo")

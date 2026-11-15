@@ -61,6 +61,7 @@ const t = () => T[lang], g = (it, k) => it[k + "_" + lang], nf = n => lang === "
 
 const ATM = { terra: 0x6cc4ff, lua: 0xfff1c8, marte: 0xff8a5c };
 const BUMP = { terra: 1.2, lua: 4, marte: 3 };
+const sitesOf = it => it.locais || (it.lat != null ? [[it.lat, it.lng]] : []);
 const DV = { terra: [15, -45], lua: [8, 0], marte: [5, -20] };
 const TEX_URL = {
   terra: "textures/earth.jpg",
@@ -677,7 +678,7 @@ function buildBody(body) {
 
   // Markers
   markers = [];
-  const its = ITEMS.filter(i => i.corpo === body && i.lat != null);
+  const its = ITEMS.filter(i => i.corpo === body).flatMap(i => sitesOf(i).map(([la, lo]) => ({ id: i.id, lat: la, lng: lo })));
   its.forEach(it => {
     const p = latLngToVec(it.lat, it.lng, R * 1.005);
     const m = new THREE.Group();
@@ -1046,7 +1047,7 @@ function render(quiet) {
     if (nb && nb !== "espaco") cam = { lat: DV[nb][0], lng: DV[nb][1], k: 1 };
     draw();
   }
-  if (it && it.lat != null && (nb !== prev.b || ni !== prev.id)) fly(it.lat, it.lng + globeOff(), 1.25);
+  if (it && sitesOf(it).length && (nb !== prev.b || ni !== prev.id)) fly(sitesOf(it)[0][0], sitesOf(it)[0][1] + globeOff(), 1.25);
   else if (nb && nb !== "espaco" && (prev.id || nb !== prev.b) && !it) fly(DV[nb][0], DV[nb][1], 1);
   else draw();
   if (currentMode === "body") recolorMarkers(ni);

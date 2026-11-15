@@ -93,7 +93,29 @@
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_alsep_restore.html",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/as12-46-6792/as12-46-6792~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/as12-46-6792/as12-46-6792~medium.jpg",
+    "locais": [
+      [
+        -3.0128,
+        -23.4219
+      ],
+      [
+        -3.6453,
+        -17.4714
+      ],
+      [
+        26.1322,
+        3.6339
+      ],
+      [
+        -8.9734,
+        15.5011
+      ],
+      [
+        20.1911,
+        30.7723
+      ]
+    ]
   },
   {
     "id": "lrrr",
