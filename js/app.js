@@ -1,3 +1,7 @@
+/* Achados e Perdidos Cósmicos — WebGL (Three.js) migration
+   Equipe Cuscuz Cósmico · NASA Space Apps 2026
+   Mantém: navegação por hash, acessibilidade, i18n, cards HTML, VLibras, modo calmo/alto contraste.
+*/
 let ITEMS = [];
 const $ = s => document.querySelector(s), ls = (k, v) => {
   try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {}
@@ -64,7 +68,8 @@ const DV = { terra: [15, -45], lua: [8, 0], marte: [5, -20] };
 const TEX_URL = {
   terra: "textures/earth.jpg",
   lua: "textures/moon.jpg",
-  marte: "textures/mars.jpg"
+  marte: "textures/mars.jpg",
+  sol: "textures/sun.jpg"
 };
 let texCache = {}, texLoader = null;
 function getTexture(key) {
@@ -319,14 +324,21 @@ function buildHub() {
   }
 
   // Sun
-  const sunGeo = new THREE.SphereGeometry(hc ? 0.55 : 0.7, 24, 16);
-  const sunMat = new THREE.MeshBasicMaterial({ color: hc ? 0xffb000 : 0xffd166 });
+  const sunGeo = new THREE.SphereGeometry(hc ? 0.55 : 0.85, 32, 24);
+  const sunMap = (!hc) ? getTexture("sol") : null;
+  const sunMat = hc
+    ? new THREE.MeshBasicMaterial({ color: 0xffb000 })
+    : sunMap
+      ? new THREE.MeshBasicMaterial({ map: sunMap })
+      : new THREE.MeshBasicMaterial({ color: 0xffd166 });
   const sun = new THREE.Mesh(sunGeo, sunMat);
+  sun.userData = { body: "sol" };
   hubGroup.add(sun);
+  hubBodies.sol = sun;
   if (!hc && !calm) {
     const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(1.8, 16, 12),
-      new THREE.MeshBasicMaterial({ color: 0xff9a3c, transparent: true, opacity: 0.18, depthWrite: false })
+      new THREE.SphereGeometry(2.0, 16, 12),
+      new THREE.MeshBasicMaterial({ color: 0xff9a3c, transparent: true, opacity: 0.2, depthWrite: false })
     );
     hubGroup.add(glow);
   }
@@ -694,7 +706,7 @@ function tickAnimation(dt) {
   }
   // Hub: spin + moon translation around Earth
   if (currentMode === "hub" && hubBodies.terra) {
-    const spin = { terra: 0.25, lua: 0.05, marte: 0.2 };
+    const spin = { terra: 0.25, lua: 0.05, marte: 0.2, sol: 0.04 };
     Object.keys(hubBodies).forEach(k => {
       const m = hubBodies[k];
       if (!m) return;
