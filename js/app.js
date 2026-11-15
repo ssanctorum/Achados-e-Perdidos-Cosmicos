@@ -33,6 +33,11 @@ const T = {
         pend: "pendente",
         scr: "Tela atual",
         stop: "Parar",
+        fs: "Tamanho do texto",
+        fs0: "Normal",
+        fs1: "Grande",
+        fs2: "Muito grande",
+        sp: "Mais espaço entre letras, palavras e linhas",
         why: "Por que ficou",
         rel: "Relacionados",
         err: "Não foi possível carregar os dados. Abra por um servidor (ex.: python3 -m http.server).",
@@ -67,6 +72,11 @@ const T = {
         pend: "pending",
         scr: "Current screen",
         stop: "Stop",
+        fs: "Text size",
+        fs0: "Normal",
+        fs1: "Large",
+        fs2: "Extra large",
+        sp: "More space between letters, words and lines",
         why: "Why it stayed",
         rel: "Related",
         err: "Could not load the data. Open through a server (e.g. python3 -m http.server).",
@@ -76,7 +86,7 @@ const T = {
         W: "W"
     }
 };
-let lang = ls("lang") || ((navigator.language || "pt").startsWith("en") ? "en" : "pt"), pref = (k, q) => { const v = ls(k); return v == null ? matchMedia(q).matches : v === "1" }, hc = pref("hc", "(prefers-contrast: more)"), calm = pref("calm", "(prefers-reduced-motion: reduce)");
+let lang = ls("lang") || ((navigator.language || "pt").startsWith("en") ? "en" : "pt"), pref = (k, q) => { const v = ls(k); return v == null ? matchMedia(q).matches : v === "1" }, hc = pref("hc", "(prefers-contrast: more)"), calm = pref("calm", "(prefers-reduced-motion: reduce)"), fsz = Math.min(2, Math.max(0, parseInt(ls("fsz")) || 0)), sp = ls("sp") === "1";
 let cur = { b: "", id: "" }, last = { b: "", id: "" }, cam = { lat: 15, lng: 0, k: 1 }, tw, pins = [];
 const t = () => T[lang], g = (it, k) => it[k + "_" + lang], nf = n => lang === "pt" ? String(n).replace(".", ",") : String(n);
 const ORB = {
@@ -174,7 +184,7 @@ function draw() {
         ctx.beginPath();
         ctx.arc(sx, sy, 11, 0, 7);
         ctx.fill();
-        ctx.font = "13px system-ui";
+        ctx.font = `${13 * parseFloat(getComputedStyle(document.documentElement).fontSize) / 16}px Lexend,system-ui`;
         its.forEach((it, i) => {
             const a = (-40 + i * (80 / Math.max(1, its.length - 1))) * rad, r = Math.sqrt(it.distancia_ua / 180) * Rm, x = sx + Math.cos(a) * r, y = sy + Math.sin(a) * r, on = it.id === cur.id;
             ctx.strokeStyle = on ? P.on : P.ln;
@@ -387,6 +397,11 @@ $("#ab").onclick = () => {
 const mode = () => {
     document.documentElement.classList.toggle("hc", hc);
     document.documentElement.classList.toggle("calm", calm);
+    document.documentElement.classList.toggle("fs1", fsz === 1);
+    document.documentElement.classList.toggle("fs2", fsz === 2);
+    document.documentElement.classList.toggle("sp", sp);
+    $("#fsz").value = fsz;
+    $("#csp").checked = sp;
     $("#chc").checked = hc;
     $("#cca").checked = calm;
     draw()
@@ -394,6 +409,16 @@ const mode = () => {
 $("#chc").onchange = e => {
     hc = e.target.checked;
     ls("hc", hc ? "1" : "0");
+    mode()
+};
+$("#fsz").onchange = e => {
+    fsz = parseInt(e.target.value) || 0;
+    ls("fsz", fsz);
+    mode()
+};
+$("#csp").onchange = e => {
+    sp = e.target.checked;
+    ls("sp", sp ? "1" : "0");
     mode()
 };
 $("#cca").onchange = e => {

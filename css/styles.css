@@ -1,3 +1,21 @@
+@font-face {
+    font-family: Lexend;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/lexend-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+    font-family: Lexend;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/lexend-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+    font-family: Orbitron;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/orbitron-latin-700-normal.woff2") format("woff2");
+}
 :root {
     --bg: #050b1f;
     --panel: #0b1a3af2;
@@ -13,6 +31,18 @@
 }
 html {
     scroll-padding-top: env(safe-area-inset-top,0px);
+    font-size: var(--fs,100%);
+}
+html.fs1 {
+    --fs: 125%;
+}
+html.fs2 {
+    --fs: 150%;
+}
+html.sp {
+    --lh: 1.8;
+    --ls: .05em;
+    --ws: .12em;
 }
 html.hc {
     --bg: #000;
@@ -40,7 +70,9 @@ body {
 body {
     background: radial-gradient(circle at 18% 22%,#12306b,transparent 42%),var(--bg);
     color: var(--tx);
-    font: 16px/1.5 system-ui,"Segoe UI",Roboto,sans-serif;
+    font: 1rem/var(--lh,1.5) Lexend,system-ui,"Segoe UI",Roboto,sans-serif;
+    letter-spacing: var(--ls,0);
+    word-spacing: var(--ws,0);
 }
 html.hc body {
     background: #000;
@@ -69,6 +101,20 @@ html.calm #cv {
 html.hc .p,
 html.hc #ap {
     border-width: 2px;
+}
+button,
+select {
+    letter-spacing: inherit;
+    word-spacing: inherit;
+}
+select {
+    font: inherit;
+    color: var(--tx);
+    background: var(--panel);
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    min-height: 44px;
+    padding: 6px 8px;
 }
 button {
     font: inherit;
@@ -142,6 +188,7 @@ button[aria-pressed=true] {
     overflow: auto;
 }
 h1 {
+    font-family: Orbitron,Lexend,system-ui,sans-serif;
     font-size: clamp(1.3rem,4.2vw,2.3rem);
     letter-spacing: .1em;
     margin: 0;
@@ -248,7 +295,9 @@ small {
     position: absolute;
     left: 0;
     bottom: 54px;
-    width: 250px;
+    width: min(300px,calc(100vw - 32px));
+    max-height: 60vh;
+    overflow: auto;
     padding: 10px;
     display: grid;
     gap: 6px;
