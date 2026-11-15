@@ -5,7 +5,7 @@ Usamos IA como assistente de programação, revisão e redação. As decisões d
 
 ## Ferramentas
 
-- Claude (Anthropic), em conversas de chat: planejamento, revisão de código, testes automatizados e documentação.
+- Claude (Anthropic), em conversas de chat: planejamento, revisão de código, testes e documentação.
 - Grok (xAI), em itens e migração para WebGL
 
 ## Registro
@@ -19,7 +19,7 @@ Usamos IA como assistente de programação, revisão e redação. As decisões d
 | 14/11/2026 | Fonte Lexend local, tamanho do texto e espaçamento ajustáveis | Claude escreveu | Aprovou e aplicou |
 | 14/11/2026 | VLibras (só PT-BR), contador de itens explorados, visual do hub | Claude escreveu a integração e o contador; o visual foi evoluído pela equipe | Aprovou e aplicou |
 | 15/11/2026 | Hub 3D (sistema solar real do dia), globos, modelos 3D, texturas, fotos da NASA nos cards | Claude e Grok escreveram | Direção do visual, escolha de itens, testes no Chrome (desktop e celular) |
-| 15/11/2026 | Modo sem WebGL (hub e cards em HTML), trajetória das sondas no card, `scripts/check_links.py`, remoção de código sem uso | Claude revisou, escreveu e testou (jsdom) | Aprovou e aplicou |
+| 15/11/2026 | Modo sem WebGL (hub e cards em HTML), trajetória das sondas no card, remoção de código sem uso | Claude revisou, escreveu e testou (jsdom) | Aprovou e aplicou |
 | 15/11/2026 | Girar e inclinar o hub (arrastar, setas, "Restaurar vista"); correção do VLibras abrindo sozinho no celular | Claude escreveu e testou a lógica (jsdom, Three.js real com renderizador simulado) | Pediu, aprovou e aplicou; testar no celular |
 | 15/11/2026 | README, CREDITS e este arquivo | Claude redigiu | Revisou e confirmou os campos |
 
@@ -31,6 +31,5 @@ Usamos IA como assistente de programação, revisão e redação. As decisões d
 ## O que ainda NÃO foi verificado por uma pessoa
 
 - A conferência dos fatos, datas e coordenadas de cada item contra a fonte oficial. O campo `data_consulta` foi preenchido em lote em 14/11/2026 e **não prova** que cada item foi conferido; a conferência item a item está em andamento.
-- Os links de `fonte` e das fotos da NASA (`scripts/check_links.py` serve para isso).
 - Direção das sondas (`ra_h`, `dec_deg`), que são aproximadas e devem ser conferidas no JPL Horizons.
 - Leitor de tela, axe, Lighthouse. Nenhuma pessoa com deficiência validou o app.

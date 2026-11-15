@@ -54,11 +54,11 @@ Lista, cards e controles são HTML real; o 3D é um complemento visual, não o �
 
 - [x] HTML semântico, botões reais, `aria-live` e idioma da página (`lang`) atualizado ao trocar PT e EN
 - [x] `prefers-reduced-motion` e `prefers-contrast`, com painel manual
-- [x] Testes automatizados da lógica (navegação, giro do hub, modo sem WebGL, VLibras) e validação do `items.json`
+- [x] Testes da lógica (navegação, giro do hub, modo sem WebGL, VLibras) e validação do `items.json`
 - [ ] Teste com leitor de tela (NVDA, VoiceOver ou TalkBack)
 - [ ] Medição com axe e Lighthouse
 - [ ] Validação com pessoas reais (cegas, surdas, autistas)
-- [x] Medição de desempenho em celular e Chromebook fracos
+- [x] Medição de desempenho testado a olho, sem medição
 
 Seguimos as diretrizes WCAG 2.2 e boas práticas, mas **ainda não afirmamos conformidade**: o app não foi validado por pessoas com deficiência.
 
