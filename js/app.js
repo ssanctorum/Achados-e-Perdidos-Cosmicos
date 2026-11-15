@@ -495,6 +495,79 @@ function placeHubButtons(positions, sizes) {
     b.dataset.side = "b";
     l.style.setProperty("--sx", "0px");
   });
+  followMoonButton();
+}
+
+// Keeps the Moon's HTML button (ring + label) on top of the orbiting Moon
+function followMoonButton() {
+  const b = $('#hubb [data-b="lua"]'), m = hubBodies.lua, e = hubBodies.terra;
+  if (!b || !m || !e || !camera) return;
+  const w = cv.clientWidth, h = cv.clientHeight;
+  const v = m.position.clone().project(camera), u = e.position.clone().project(camera);
+  b.style.left = ((v.x * 0.5 + 0.5) * w) + "px";
+  b.style.top = ((-v.y * 0.5 + 0.5) * h) + "px";
+  // label on the side facing away from Earth, so it does not cover Earth's label
+  const side = (v.y > u.y ? "t" : "b") + (v.x < u.x ? "l" : "r");
+  if (b.dataset.side !== side) b.dataset.side = side;
+}
+
+// Longitude offset of the globe's current spin (so the camera centers on the pin)
+const globeOff = () => (currentMode === "body" && bodyGlobe ? bodyGlobe.rotation.y / rad : 0);
+
+// Highlights the selected pin (size, color and ring) without rebuilding the scene
+function recolorMarkers(id) {
+  markers.forEach(m => {
+    const on = m.userData.id === id;
+    m.scale.setScalar(on ? 1.6 : 1);
+    m.material.color.setHex(on ? 0xff9a3c : (hc ? 0xffffff : 0xe8f4ff));
+    if (m.userData.ring) m.userData.ring.visible = on;
+  });
+  needsRender = true;
+}
+
+// Miniature probe (low-poly): bus, dish, booms and RTG
+function makeProbe(id, on) {
+  const pioneer = id.startsWith("pioneer");
+  const mk = (color, extra = {}) => new THREE.MeshStandardMaterial({
+    color: hc ? 0xffffff : color, roughness: 0.55, metalness: 0.25,
+    emissive: on ? 0xff9a3c : 0x222222, emissiveIntensity: on ? 0.45 : 0.6, ...extra
+  });
+  const gold = mk(0xd9b45a), white = mk(0xe8f4ff, { side: THREE.DoubleSide });
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.1, pioneer ? 6 : 10), gold));
+  const r = pioneer ? 0.36 : 0.3;
+  const dish = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 8, 0, Math.PI * 2, Math.PI * 0.62, Math.PI * 0.38), white);
+  dish.position.y = 0.05 + r;
+  g.add(dish);
+  const feed = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.3, 6), white);
+  feed.position.y = 0.2;
+  g.add(feed);
+  const boom = (len, x) => {
+    const b = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, len, 6), gold);
+    b.rotation.z = Math.PI / 2;
+    b.position.x = x;
+    return b;
+  };
+  g.add(boom(0.55, 0.42), boom(0.6, -0.45));
+  const rtg = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.14, 8), gold);
+  rtg.rotation.z = Math.PI / 2;
+  rtg.position.x = 0.72;
+  g.add(rtg);
+  if (!pioneer) {
+    const scan = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 0.06), white);
+    scan.position.x = -0.78;
+    g.add(scan);
+  }
+  g.rotation.set(0.25, 0, 0.3);
+  const root = new THREE.Group();
+  root.add(g);
+  if (on) {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.025, 8, 32), new THREE.MeshBasicMaterial({ color: 0xff9a3c }));
+    ring.rotation.x = Math.PI / 2;
+    root.add(ring);
+  }
+  root.scale.setScalar(on ? 1.7 : 1.2);
+  return root;
 }
 
 /* ---------- Body (globe) scene ---------- */
@@ -587,25 +660,23 @@ function buildBody(body) {
   const its = ITEMS.filter(i => i.corpo === body && i.lat != null);
   its.forEach(it => {
     const p = latLngToVec(it.lat, it.lng, R * 1.02);
-    const isOn = it.id === cur.id;
     const m = new THREE.Mesh(
-      new THREE.SphereGeometry(isOn ? 0.045 : 0.028, 12, 10),
-      new THREE.MeshBasicMaterial({ color: isOn ? 0xff9a3c : (hc ? 0xffffff : 0xe8f4ff) })
+      new THREE.SphereGeometry(0.03, 12, 10),
+      new THREE.MeshBasicMaterial({ color: 0xe8f4ff })
     );
     m.position.copy(p);
     m.userData = { id: it.id };
-    bodyGroup.add(m);
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.04, 0.005, 8, 24),
+      new THREE.MeshBasicMaterial({ color: 0xff9a3c })
+    );
+    ring.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), p.clone().normalize());
+    m.add(ring);
+    m.userData.ring = ring;
+    globe.add(m); // child of the globe: the pin rotates with the planet
     markers.push(m);
-    if (isOn) {
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(0.07, 0.008, 8, 24),
-        new THREE.MeshBasicMaterial({ color: 0xff9a3c })
-      );
-      ring.position.copy(p);
-      ring.lookAt(0, 0, 0);
-      bodyGroup.add(ring);
-    }
   });
+  recolorMarkers(cur.id);
 
   // Camera
   const [la, lo] = [cam.lat, cam.lng];
@@ -636,8 +707,12 @@ function addBlobs(parent, list, color, R) {
 function updatePinsFromMarkers() {
   pins = [];
   const w = cv.clientWidth, h = cv.clientHeight;
+  camera.updateMatrixWorld();
+  const wp = new THREE.Vector3();
   markers.forEach(m => {
-    const v = m.position.clone().project(camera);
+    m.getWorldPosition(wp);
+    if (currentMode === "body" && wp.dot(camera.position) < wp.lengthSq()) return; // far side of the globe
+    const v = wp.clone().project(camera);
     if (v.z > 1) return; // behind
     const x = (v.x * 0.5 + 0.5) * w;
     const y = (-v.y * 0.5 + 0.5) * h;
@@ -656,11 +731,21 @@ function buildDeep() {
   deepGroup.add(makeStars(1400));
 
   // Sun-ish center
+  const sunMap = hc ? null : getTexture("sol");
   const sun = new THREE.Mesh(
-    new THREE.SphereGeometry(0.35, 20, 16),
-    new THREE.MeshBasicMaterial({ color: hc ? 0xffb000 : 0xffd166 })
+    new THREE.SphereGeometry(0.35, 24, 18),
+    sunMap ? new THREE.MeshBasicMaterial({ map: sunMap }) : new THREE.MeshBasicMaterial({ color: hc ? 0xffb000 : 0xffd166 })
   );
   deepGroup.add(sun);
+  if (!hc) {
+    const dl = new THREE.DirectionalLight(0xffffff, 1.4);
+    dl.position.set(4, 8, 6);
+    scene.add(dl);
+    if (!calm) deepGroup.add(new THREE.Mesh(
+      new THREE.SphereGeometry(0.7, 16, 12),
+      new THREE.MeshBasicMaterial({ color: 0xff9a3c, transparent: true, opacity: 0.18, depthWrite: false })
+    ));
+  }
 
   // Concentric rings
   [2.2, 3.6, 5.2, 7].forEach(r => {
@@ -692,10 +777,7 @@ function buildDeep() {
       opacity: on ? 1 : 0.55
     })));
 
-    const m = new THREE.Mesh(
-      new THREE.SphereGeometry(on ? 0.18 : 0.11, 12, 10),
-      new THREE.MeshBasicMaterial({ color: on ? 0xff9a3c : (hc ? 0xffffff : 0xe8f4ff) })
-    );
+    const m = makeProbe(it.id, on);
     m.position.copy(pos);
     m.userData = { id: it.id };
     deepGroup.add(m);
@@ -739,8 +821,14 @@ function tickAnimation(dt) {
   if (calm) return false;
   let moved = false;
   // Body globe spin
-  if (currentMode === "body" && bodyGlobe) {
+  if (currentMode === "body" && bodyGlobe && !cur.id) {
     bodyGlobe.rotation.y += 0.08 * dt;
+    bodyGlobe.updateMatrixWorld(true);
+    updatePinsFromMarkers();
+    moved = true;
+  }
+  if (currentMode === "deep" && markers.length) {
+    markers.forEach(m => { m.rotation.y += 0.5 * dt; });
     moved = true;
   }
   // Hub: spin + moon translation around Earth
@@ -766,6 +854,7 @@ function tickAnimation(dt) {
         if (ch.userData && ch.userData.follow === "terra") ch.position.copy(hubBodies.terra.position);
         if (ch.userData && ch.userData.follow === "marte" && hubBodies.marte) ch.position.copy(hubBodies.marte.position);
       });
+      followMoonButton();
     }
     moved = true;
   }
@@ -905,9 +994,10 @@ function render(quiet) {
     if (nb && nb !== "espaco") cam = { lat: DV[nb][0], lng: DV[nb][1], k: 1 };
     draw();
   }
-  if (it && it.lat != null && (nb !== prev.b || ni !== prev.id)) fly(it.lat, it.lng, 2.4);
+  if (it && it.lat != null && (nb !== prev.b || ni !== prev.id)) fly(it.lat, it.lng + globeOff(), 2.4);
   else if (nb && nb !== "espaco" && (prev.id || nb !== prev.b) && !it) fly(DV[nb][0], DV[nb][1], 1);
   else draw();
+  if (currentMode === "body") recolorMarkers(ni);
 
   libras();
   if (!quiet) {
