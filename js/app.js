@@ -106,7 +106,7 @@ const distEM = () => {
 const cv = $("#cv");
 let renderer, scene, camera, animId = null, currentMode = null;
 let hubGroup = null, bodyGroup = null, deepGroup = null;
-let markers = [], raycaster = null, mouse = new THREE.Vector2();
+let markers = [], raycaster = null, mouse = null;
 let targetCam = null, animStart = 0, animFrom = null;
 
 /* Drag to rotate globe / deep space */
@@ -151,13 +151,19 @@ function applyDeepCam() {
 
 function initThree() {
   if (typeof THREE === "undefined") {
-    console.error("Three.js failed to load");
+    console.error("Three.js failed to load — confira js/vendor/three.min.js");
+    const err = $("#err");
+    if (err) {
+      err.hidden = false;
+      err.textContent = "Não foi possível carregar o Three.js (js/vendor/three.min.js).";
+    }
     return false;
   }
+  mouse = new THREE.Vector2();
   renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: !calm, alpha: true, powerPreference: "high-performance" });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.setClearColor(0x000000, 0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  if (THREE.SRGBColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(45, 1, 0.1, 2000);
   raycaster = new THREE.Raycaster();
