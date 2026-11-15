@@ -410,9 +410,9 @@ small {
 #card {
     position: absolute;
     left: 16px;
-    top: 200px;
+    top: 225px;
     width: min(360px,calc(100% - 32px));
-    max-height: calc(100% - 270px);
+    max-height: calc(100% - 295px);
     overflow: hidden;
     padding: 14px 14px 14px 18px;
     z-index: 4;
@@ -631,3 +631,7 @@ html.calm .sparkles, html.hc .sparkles { display: none; }
 
 .item .p, .item #ap { background: #121a38e8; }
 html.hc .p, html.hc #ap, html.hc .item .p, html.hc .item #ap { background: #000; -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+.card-x { right: 24px; }
+.card-ls { top: 54px; font-size: .95rem; }
+.card-scroll { scrollbar-width: thin; }

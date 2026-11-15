@@ -20,7 +20,7 @@ const T = {
     sp: "Mais espaço entre letras, palavras e linhas", why: "Por que ficou", rel: "Relacionados",
     err: "Não foi possível carregar os dados. Abra por um servidor (ex.: python3 -m http.server).",
     st: { ativo: "Ativo", silencioso: "Silencioso", "concluído": "Concluído" },
-    nm: { terra: "Terra", lua: "Lua", marte: "Marte", espaco: "Espaço profundo" },
+    nm: { terra: "Terra", lua: "Lua", marte: "Marte", espaco: "Rumo às estrelas" },
     hcap: d => `Posições reais em ${d}, vistas de cima. Sol, planetas e a distância da Lua estão ampliados.`,
     hdist: (u, m) => `Terra–Marte hoje: ${u} UA (luz: ${m} min) · Terra–Lua: 384.400 km (luz: 1,3 s)`,
     E: "L", W: "O"
@@ -41,7 +41,7 @@ const T = {
     sp: "More space between letters, words and lines", why: "Why it stayed", rel: "Related",
     err: "Could not load the data. Open through a server (e.g. python3 -m http.server).",
     st: { ativo: "Active", silencioso: "Silent", "concluído": "Completed" },
-    nm: { terra: "Earth", lua: "Moon", marte: "Mars", espaco: "Deep space" },
+    nm: { terra: "Earth", lua: "Moon", marte: "Mars", espaco: "Toward the stars" },
     hcap: d => `Real positions on ${d}, seen from above. The Sun, planets and the Moon's distance are enlarged.`,
     hdist: (u, m) => `Earth–Mars today: ${u} AU (light: ${m} min) · Earth–Moon: 384,400 km (light: 1.3 s)`,
     E: "E", W: "W"
@@ -60,6 +60,7 @@ let cam = { lat: 15, lng: 0, k: 1 }, tw = null, pins = [];
 const t = () => T[lang], g = (it, k) => it[k + "_" + lang], nf = n => lang === "pt" ? String(n).replace(".", ",") : String(n);
 
 const ATM = { terra: 0x6cc4ff, lua: 0xfff1c8, marte: 0xff8a5c };
+const BUMP = { terra: 1.2, lua: 4, marte: 3 };
 const DV = { terra: [15, -45], lua: [8, 0], marte: [5, -20] };
 const TEX_URL = {
   terra: "textures/earth.jpg",
@@ -76,6 +77,8 @@ function getTexture(key) {
   try {
     const t = texLoader.load(url, () => { needsRender = true; });
     t.colorSpace = THREE.SRGBColorSpace || THREE.sRGBEncoding;
+    t.anisotropy = renderer ? renderer.capabilities.getMaxAnisotropy() : 4;
+    t.minFilter = THREE.LinearMipmapLinearFilter;
     texCache[key] = t;
     return t;
   } catch (e) { return null; }
@@ -433,7 +436,7 @@ function buildHub() {
     if (hc) {
       mat = new THREE.MeshBasicMaterial(map ? { map } : { color });
     } else if (map) {
-      mat = new THREE.MeshStandardMaterial({ map, roughness: 0.85, metalness: 0.05 });
+      mat = new THREE.MeshStandardMaterial({ map, bumpMap: map, bumpScale: BUMP[name] || 0.5, roughness: 0.85, metalness: 0.05 });
     } else {
       mat = new THREE.MeshStandardMaterial({ color, roughness: 0.65, metalness: 0.05, emissive: color, emissiveIntensity: 0.12 });
     }
@@ -464,36 +467,25 @@ function buildHub() {
   ];
   const pp = free.sort((a, b) => Math.min(a.distanceTo(mp), a.distanceTo(ep)) - Math.min(b.distanceTo(mp), b.distanceTo(ep)))[0];
   {
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(1.1, 0.08, 12, 48),
-      new THREE.MeshBasicMaterial({ color: hc ? 0xffffff : 0x5ce1e6, transparent: true, opacity: 0.9 })
-    );
-    ring.position.copy(pp);
-    ring.rotation.x = Math.PI / 2;
-    hubGroup.add(ring);
-    const ring2 = new THREE.Mesh(
-      new THREE.TorusGeometry(1.55, 0.05, 10, 40),
-      new THREE.MeshBasicMaterial({ color: hc ? 0xffffff : 0x5ce1e6, transparent: true, opacity: 0.35 })
-    );
-    ring2.position.copy(pp);
-    ring2.rotation.x = Math.PI / 2;
-    hubGroup.add(ring2);
-    const core = new THREE.Mesh(
-      new THREE.SphereGeometry(0.18, 12, 10),
-      new THREE.MeshBasicMaterial({ color: hc ? 0xffffff : 0x5ce1e6 })
-    );
+    const N = 320, P = new Float32Array(N * 3), C = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) {
+      const t = Math.pow(Math.random(), 0.7), th = t * 4.6 + (i % 2) * Math.PI + (Math.random() - 0.5) * 0.5;
+      const r = 0.12 + t * 1.5;
+      P.set([Math.cos(th) * r, (Math.random() - 0.5) * 0.12, Math.sin(th) * r], i * 3);
+      const c = new THREE.Color(hc ? 0xffffff : (i % 5 === 0 ? 0xffd9a0 : 0x8ff3f6));
+      C.set([c.r, c.g, c.b], i * 3);
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(P, 3));
+    geo.setAttribute("color", new THREE.BufferAttribute(C, 3));
+    const core = new THREE.Group();
+    core.add(new THREE.Points(geo, new THREE.PointsMaterial({ size: 0.11, vertexColors: true, transparent: true, opacity: 0.95, depthWrite: false })));
+    core.add(new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), new THREE.MeshBasicMaterial({ color: hc ? 0xffffff : 0xfff1c8 })));
+    if (!hc) core.add(glow(0x5ce1e6, 3.4, 0.7));
     core.position.copy(pp);
     core.userData = { body: "espaco", radius: 1.1 };
     hubGroup.add(core);
     hubBodies.espaco = core;
-
-    // Trajectory hints
-    for (let o of [-0.25, 0, 0.25]) {
-      const a = Math.atan2(pp.z, pp.x) + o;
-      const start = new THREE.Vector3(Math.cos(a) * 18, 0, Math.sin(a) * 18);
-      const geo = new THREE.BufferGeometry().setFromPoints([start, pp.clone().multiplyScalar(0.85)]);
-      hubGroup.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: hc ? 0xffffff : 0x5ce1e688, transparent: true, opacity: 0.5 })));
-    }
   }
 
   // Camera top-down (hubZoom scales distance)
@@ -646,7 +638,7 @@ function buildBody(body) {
   if (hc) {
     mat = new THREE.MeshBasicMaterial(map ? { map } : { color: col.base });
   } else if (map) {
-    mat = new THREE.MeshStandardMaterial({ map, roughness: 0.9, metalness: 0.02 });
+    mat = new THREE.MeshStandardMaterial({ map, bumpMap: map, bumpScale: BUMP[body] || 0.5, roughness: 0.9, metalness: 0.02 });
   } else {
     mat = new THREE.MeshStandardMaterial({
       color: col.base,
@@ -867,13 +859,13 @@ function tickAnimation(dt) {
     updatePinsFromMarkers();
     moved = true;
   }
-  if (currentMode === "deep" && markers.length) {
+  if (currentMode === "deep" && markers.length && !cur.id) {
     markers.forEach(m => { m.rotation.y += 0.5 * dt; });
     moved = true;
   }
   // Hub: spin + moon translation around Earth
   if (currentMode === "hub" && hubBodies.terra) {
-    const spin = { terra: 0.25, lua: 0.05, marte: 0.2, sol: 0.04 };
+    const spin = { terra: 0.25, lua: 0.05, marte: 0.2, sol: 0.04, espaco: 0.18 };
     Object.keys(hubBodies).forEach(k => {
       const m = hubBodies[k];
       if (!m) return;
@@ -901,7 +893,7 @@ function tickAnimation(dt) {
   return moved;
 }
 
-let lastTs = 0;
+let lastTs = 0, lastDraw = 0;
 function loop(ts) {
   animId = requestAnimationFrame(loop);
   const t = ts || performance.now();
@@ -909,6 +901,8 @@ function loop(ts) {
   lastTs = t;
   const animating = tickAnimation(dt);
   if (!needsRender && !targetCam && !animating) return;
+  if (!needsRender && !targetCam && t - lastDraw < 33) return;
+  lastDraw = t;
   needsRender = false;
   if (renderer && scene && camera) renderer.render(scene, camera);
 }
@@ -922,13 +916,13 @@ function cardHtml(it) {
     .replace(/(O que é:|O que descobriu:|Onde está hoje:|What it is:|What it found:|Where it is today:)/g, "<br><b>$1</b>")
     .replace(/^<br>/, "");
   const img = `<div class="card-bg" aria-hidden="true" data-img="${it.imagem || ""}" data-id="${it.id}"></div>`;
-  let x = `<button id="cl" class="card-x" aria-label="${t().close}">✕</button><div class="card-scroll">${img}<div class="card-body"><h2 id="ct">${it.nome}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
+  let x = `<button id="cl" class="card-x" aria-label="${t().close}">✕</button><button id="ls" class="card-x card-ls" aria-label="${t().listen}">🔊</button><div class="card-scroll">${img}<div class="card-body"><h2 id="ct">${it.nome}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
   if (g(it, "por_que_ficou")) x += `<p><b>${t().why}:</b> ${g(it, "por_que_ficou")}</p>`;
   if (it.lat != null) x += `<p>${fmtC(it.lat, it.lng)}<small>${t().pos}</small></p>`;
   if (d) x += `<p><b>${t().dist}:</b> ${nf(it.distancia_ua.toFixed(1))} UA (${it.data_distancia}) · ${t().sig} ${nf(Math.round(it.distancia_ua * 8.317 / 60))} h</p>`;
   const rl = (it.relacionados || []).map(r => ITEMS.find(i => i.id === r)).filter(Boolean);
   if (rl.length) x += `<p><b>${t().rel}:</b></p><div class="row">${rl.map(r => `<button data-go="${r.corpo}/${r.id}">${r.nome}</button>`).join("")}</div>`;
-  return x + `<div class="row"><button id="ls">${t().listen}</button></div></div></div>`;
+  return x + `<div class="row"></div></div></div>`;
 }
 
 const up = () => { location.hash = cur.id ? "#" + cur.b : ""; };
@@ -1034,9 +1028,9 @@ function render(quiet) {
       if (S.speaking) { S.cancel(); return; }
       const u = new SpeechSynthesisUtterance([it.nome, g(it, "historia"), g(it, "descricao_visual"), t().last + ": " + g(it, "ultimo_sinal")].join(". "));
       u.lang = lang === "pt" ? "pt-BR" : "en-US";
-      const done = () => { L.textContent = t().listen; };
+      const done = () => { L.textContent = "🔊"; L.setAttribute("aria-label", t().listen); };
       u.onend = u.onerror = done;
-      L.textContent = t().stop;
+      L.textContent = "⏹"; L.setAttribute("aria-label", t().stop);
       S.speak(u);
     };
     K.onclick = e => {
