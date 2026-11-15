@@ -109,6 +109,46 @@ let hubGroup = null, bodyGroup = null, deepGroup = null;
 let markers = [], raycaster = null, mouse = new THREE.Vector2();
 let targetCam = null, animStart = 0, animFrom = null;
 
+/* Drag to rotate globe / deep space */
+let drag = {
+  active: false,
+  moved: false,
+  x0: 0,
+  y0: 0,
+  lat0: 0,
+  lng0: 0,
+  deepAngle0: 0,
+  deepAngle: 0.6, // radians around Y for deep view
+  deepElev: 0.55
+};
+
+function applyBodyCam() {
+  if (currentMode !== "body" || !camera) return;
+  const dist = 2.6 / (cam.k || 1);
+  const camPos = latLngToVec(cam.lat, cam.lng, dist);
+  camera.position.copy(camPos);
+  camera.lookAt(0, 0, 0);
+  camera.up.set(0, 1, 0);
+  updatePinsFromMarkers();
+  needsRender = true;
+}
+
+function applyDeepCam() {
+  if (currentMode !== "deep" || !camera) return;
+  const r = 18;
+  const a = drag.deepAngle;
+  const e = drag.deepElev;
+  camera.position.set(
+    Math.sin(a) * Math.cos(e) * r,
+    Math.sin(e) * r,
+    Math.cos(a) * Math.cos(e) * r
+  );
+  camera.lookAt(0, 0, 0);
+  camera.up.set(0, 1, 0);
+  updatePinsFromMarkers();
+  needsRender = true;
+}
+
 function initThree() {
   if (typeof THREE === "undefined") {
     console.error("Three.js failed to load");
@@ -563,13 +603,9 @@ function buildDeep() {
     markers.push(m);
   });
 
-  camera.position.set(0, 11, 14);
-  camera.lookAt(0, 0, 0);
-  camera.up.set(0, 1, 0);
   camera.fov = 42;
   camera.updateProjectionMatrix();
-  updatePinsFromMarkers();
-  needsRender = true;
+  applyDeepCam();
 }
 
 /* ---------- Camera fly (body) ---------- */
@@ -593,15 +629,7 @@ function fly(la, lo, k) {
       lng: animFrom.lng + dl * e,
       k: animFrom.k + (k - animFrom.k) * e
     };
-    // Update camera position without full rebuild
-    if (currentMode === "body" && bodyGroup) {
-      const dist = 2.6 / (cam.k || 1);
-      const camPos = latLngToVec(cam.lat, cam.lng, dist);
-      camera.position.copy(camPos);
-      camera.lookAt(0, 0, 0);
-      updatePinsFromMarkers();
-      needsRender = true;
-    }
+    if (currentMode === "body" && bodyGroup) applyBodyCam();
     if (u < 1) tw = requestAnimationFrame(step);
     else targetCam = null;
   })(animStart);
@@ -636,9 +664,16 @@ const up = () => { location.hash = cur.id ? "#" + cur.b : ""; };
 
 function draw() {
   // Route to the correct Three.js scene
-  if (!cur.b) buildHub();
-  else if (cur.b === "espaco") buildDeep();
-  else buildBody(cur.b);
+  if (!cur.b) {
+    buildHub();
+    cv.style.cursor = "";
+  } else if (cur.b === "espaco") {
+    buildDeep();
+    cv.style.cursor = "grab";
+  } else {
+    buildBody(cur.b);
+    cv.style.cursor = "grab";
+  }
 }
 
 function render(quiet) {
@@ -748,12 +783,76 @@ $("#ul").onclick = e => {
   const x = e.target.closest("[data-id]");
   if (x) location.hash = `#${cur.b}/${x.dataset.id}`;
 };
-cv.onclick = e => {
-  if (!pins.length) return;
-  const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-  const p = pins.find(q => Math.hypot(q[0] - x, q[1] - y) < 18);
-  if (p) location.hash = `#${cur.b}/${p[2]}`;
-};
+function pointerPos(e) {
+  const r = cv.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return { x: t.clientX - r.left, y: t.clientY - r.top, cx: t.clientX, cy: t.clientY };
+}
+
+function onPointerDown(e) {
+  if (currentMode !== "body" && currentMode !== "deep") return;
+  if (e.button != null && e.button !== 0) return;
+  const p = pointerPos(e);
+  drag.active = true;
+  drag.moved = false;
+  drag.x0 = p.x;
+  drag.y0 = p.y;
+  drag.lat0 = cam.lat;
+  drag.lng0 = cam.lng;
+  drag.deepAngle0 = drag.deepAngle;
+  cancelAnimationFrame(tw);
+  targetCam = null;
+  cv.setPointerCapture?.(e.pointerId);
+  cv.style.cursor = "grabbing";
+  e.preventDefault();
+}
+
+function onPointerMove(e) {
+  if (!drag.active) return;
+  const p = pointerPos(e);
+  const dx = p.x - drag.x0;
+  const dy = p.y - drag.y0;
+  if (Math.hypot(dx, dy) > 6) drag.moved = true;
+
+  if (currentMode === "body") {
+    // Horizontal drag → longitude; vertical → latitude
+    const sens = 0.28;
+    cam.lng = drag.lng0 - dx * sens;
+    cam.lat = Math.max(-80, Math.min(80, drag.lat0 + dy * sens));
+    applyBodyCam();
+  } else if (currentMode === "deep") {
+    drag.deepAngle = drag.deepAngle0 - dx * 0.008;
+    applyDeepCam();
+  }
+  e.preventDefault();
+}
+
+function onPointerUp(e) {
+  if (!drag.active) return;
+  const moved = drag.moved;
+  drag.active = false;
+  cv.style.cursor = (currentMode === "body" || currentMode === "deep") ? "grab" : "";
+  try { cv.releasePointerCapture?.(e.pointerId); } catch (_) {}
+
+  // Only treat as pin click if the user did not drag
+  if (!moved && pins.length) {
+    const r = cv.getBoundingClientRect();
+    const x = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) - r.left;
+    const y = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) - r.top;
+    const hit = pins.find(q => Math.hypot(q[0] - x, q[1] - y) < 18);
+    if (hit) location.hash = `#${cur.b}/${hit[2]}`;
+  }
+}
+
+cv.addEventListener("pointerdown", onPointerDown);
+cv.addEventListener("pointermove", onPointerMove);
+cv.addEventListener("pointerup", onPointerUp);
+cv.addEventListener("pointercancel", onPointerUp);
+cv.addEventListener("lostpointercapture", () => { drag.active = false; });
+// Prevent page scroll while dragging on touch
+cv.addEventListener("touchstart", e => {
+  if (currentMode === "body" || currentMode === "deep") e.preventDefault();
+}, { passive: false });
 $("#back").onclick = up;
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape" || $("#dlg").open) return;
