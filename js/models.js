@@ -1,6 +1,3 @@
-/* Modelinhos low-poly de cada item (feitos à mão com formas simples do Three.js).
-   Formas inspiradas nas fotos oficiais; proporções simplificadas e ampliadas.
-   Sem assets externos. Cada modelo cabe numa caixa de ~1 unidade e "em pé" no eixo +Y. */
 (function () {
   const T = () => THREE;
 
@@ -110,7 +107,6 @@
     return g;
   }
 
-  // Miniatura PNG renderizada na hora (usada quando a foto da NASA não carrega ou não existe)
   const cache = {};
   function thumb(id, hc) {
     const key = id + (hc ? "H" : "");

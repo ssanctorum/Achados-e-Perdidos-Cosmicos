@@ -1268,10 +1268,22 @@ $("#app").addEventListener("animationend", e => { if (e.animationName === "scan"
 addEventListener("resize", () => { onResize(); if (currentMode === "hub") buildHub(); else needsRender = true; });
 addEventListener("hashchange", () => render());
 
+/* Brilhos e tela de carregamento */
+{
+  const sp = document.querySelector(".sparkles");
+  for (let i = 0; i < 16; i++) {
+    const e = document.createElement("i");
+    e.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;--d:${3 + Math.random() * 4}s;--w:${Math.random() * 5}s;scale:${0.6 + Math.random()}`;
+    sp.appendChild(e);
+  }
+}
+const bootDone = () => setTimeout(() => $("#boot").classList.add("done"), 500);
+
 /* Boot */
 if (!initThree()) {
   $("#err").textContent = "WebGL / Three.js indisponível neste dispositivo.";
   $("#err").hidden = false;
+  bootDone();
 } else {
   loop();
 }
@@ -1282,6 +1294,7 @@ fetch("data/items.json")
     ITEMS = d;
     mode();
     render();
+    bootDone();
   })
   .catch(() => {
     const m = t().err;
