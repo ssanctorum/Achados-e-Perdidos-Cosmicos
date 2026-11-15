@@ -58,7 +58,6 @@ body {
     height: 100%;
     margin: 0;
 }
-/* Céu: roxo e verde-azulado profundos, com estrelas pequenas */
 body {
     background:
         radial-gradient(1px 1px at 20px 30px,#ffffffb0,transparent),
@@ -91,18 +90,18 @@ html.calm #cv {
     width: 100%;
     height: 100%;
 }
-/* Painéis: vidro escuro, linha fina e uma barra laranja na borda esquerda */
 .p,
 #ap {
-    background: var(--panel);
-    border: 1px solid var(--bd);
-    border-radius: 14px;
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
+    background: #141c3c8c;
+    border: 1px solid #ffffff47;
+    border-radius: 16px;
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    backdrop-filter: blur(18px) saturate(1.5);
+    box-shadow: 0 10px 34px #0007, inset 0 1px 0 #ffffff55;
 }
+html.hc .p, html.hc #ap { background: #000; border: 2px solid #fff; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
 #card,
 #list {
-    box-shadow: 0 10px 34px #0007;
     padding-left: 18px;
     overflow: hidden auto;
 }
@@ -183,7 +182,6 @@ button[aria-pressed=true] {
     background: var(--panel);
     border-radius: 14px;
 }
-/* Hub: mapa do sistema solar. O canvas desenha; os botões HTML ficam por cima. */
 #hub {
     position: absolute;
     inset: 0;
@@ -411,10 +409,10 @@ small {
 #card {
     position: absolute;
     left: 16px;
-    top: 150px;
+    top: 200px;
     width: min(360px,calc(100% - 32px));
-    max-height: calc(100% - 230px);
-    overflow: auto;
+    max-height: calc(100% - 270px);
+    overflow: hidden;
     padding: 14px 14px 14px 18px;
     z-index: 4;
 }
@@ -531,7 +529,6 @@ dialog li {
         bottom: 74px;
     }
 }
-/* Transição entre telas: um anel de luz que se expande do centro */
 #app::after {
     content: "";
     position: absolute;
@@ -563,7 +560,6 @@ html.hc #app::after {
     display: none;
 }
 
-/* Card: foto (ou modelinho) de fundo + gradiente atrás do texto */
 #card { padding: 0; }
 .card-bg {
   position: sticky; top: 0; height: 190px; margin-bottom: -90px;
@@ -577,7 +573,6 @@ html.hc #app::after {
 html.hc .card-bg { display: none; }
 html.hc .card-body { background: #000; padding-top: 14px; }
 
-/* ---- Visual moderno: cantos arredondados, movimento suave, brilhos ---- */
 button { transition: transform .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease; }
 button:not(.pl):hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px #0006; border-color: var(--ac); }
 button:not(.pl):active:not(:disabled) { transform: translateY(0) scale(.97); }
@@ -590,8 +585,7 @@ button:not(.pl):active:not(:disabled) { transform: translateY(0) scale(.97); }
 #ul button[aria-current=true] { background: #ffa94d26; }
 .card-bg { border-radius: 14px 14px 0 0; }
 
-/* Brilhos piscando (estrelinhas de 4 pontas, cor sólida) */
-.sparkles { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.sparkles { position: absolute; inset: 0; pointer-events: none; }
 .sparkles i {
     position: absolute; width: 10px; height: 10px; background: #fff; opacity: 0;
     clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
@@ -602,7 +596,6 @@ button:not(.pl):active:not(:disabled) { transform: translateY(0) scale(.97); }
 @keyframes twinkle { 0%,100% { opacity: 0; transform: scale(.3) rotate(0); } 50% { opacity: .9; transform: scale(1) rotate(45deg); } }
 html.calm .sparkles, html.hc .sparkles { display: none; }
 
-/* Tela de carregamento */
 #boot {
     position: fixed; inset: 0; z-index: 20; display: grid; place-content: center; justify-items: center; gap: 18px;
     background: var(--bg); transition: opacity .5s ease, visibility .5s;
@@ -612,3 +605,13 @@ html.calm .sparkles, html.hc .sparkles { display: none; }
 #boot .orb::after { content: ""; display: block; width: 14px; height: 14px; margin: 12px auto 0; border-radius: 50%; background: var(--ac2); }
 @keyframes spin { to { transform: rotate(360deg); } }
 #boot p { margin: 0; letter-spacing: .08em; }
+
+#card { padding: 0; display: flex; flex-direction: column; }
+.card-scroll { overflow-y: auto; flex: 1; min-height: 0; }
+.card-x {
+    position: absolute; top: 10px; right: 10px; z-index: 5; width: 36px; height: 36px; min-width: 0; min-height: 0; padding: 0;
+    border-radius: 50%; background: #0b1224b3; border: 1px solid #ffffff66; font-size: 1rem; line-height: 1;
+}
+#ap { position: fixed; left: auto; right: 84px; bottom: 16px; }
+#list { max-height: calc(100% - 400px); }
+@media (max-width: 700px) { #ap { left: 16px; right: auto; bottom: 72px; } }

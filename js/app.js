@@ -153,12 +153,37 @@ let deepRadius = 18;  // zoom for deep space
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
+function moonAt(a) {
+  const e = hubBodies.terra.position;
+  hubBodies.lua.position.set(e.x + Math.cos(a) * hubMoonOrbit.dist, 0, e.z + Math.sin(a) * hubMoonOrbit.dist);
+  hubGroup.children.forEach(ch => {
+    const f = ch.userData && ch.userData.follow;
+    if (f && hubBodies[f]) ch.position.copy(hubBodies[f].position);
+  });
+}
+
+function parkMoon() {
+  const w = cv.clientWidth, h = cv.clientHeight;
+  camera.updateMatrixWorld(true);
+  let best = 0, bestScore = -1e9;
+  for (let d = 0; d < 360; d += 10) {
+    const a = d * rad;
+    moonAt(a);
+    const v = hubBodies.lua.position.clone().project(camera);
+    const x = (v.x * 0.5 + 0.5) * w, y = (-v.y * 0.5 + 0.5) * h;
+    const sc = Math.min(y - 150, h - 200 - y, x - 60, w - 60 - x);
+    if (sc > bestScore) { bestScore = sc; best = a; }
+  }
+  moonAt(best);
+}
+
 function applyHubCam() {
   if (currentMode !== "hub" || !camera) return;
   const y = hubBaseY / hubZoom;
   camera.position.set(0, y, 0.01);
   camera.lookAt(0, 0, 0);
   camera.up.set(0, 0, -1);
+  if (calm && hubMoonOrbit && hubBodies.lua && hubBodies.terra) parkMoon();
   // re-place HTML buttons if planets exist
   if (hubBodies.terra && hubBodies.marte && hubBodies.lua) {
     const ed = (hubBodies.terra.userData.radius || 0.5) * 2;
@@ -275,6 +300,24 @@ function clearScene() {
 }
 
 /* ---------- Stars (shared) ---------- */
+let glowTex = null;
+function glow(color, size, opacity) {
+  if (!glowTex) {
+    const c = document.createElement("canvas");
+    c.width = c.height = 128;
+    const x = c.getContext("2d"), g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+    g.addColorStop(0, "rgba(255,255,255,1)");
+    g.addColorStop(0.35, "rgba(255,255,255,.35)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    x.fillStyle = g;
+    x.fillRect(0, 0, 128, 128);
+    glowTex = new THREE.CanvasTexture(c);
+  }
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, opacity, depthWrite: false, blending: THREE.AdditiveBlending }));
+  sp.scale.setScalar(size);
+  return sp;
+}
+
 function makeStars(count = 1200) {
   const geo = new THREE.BufferGeometry();
   const pos = new Float32Array(count * 3);
@@ -375,11 +418,7 @@ function buildHub() {
   hubGroup.add(sun);
   hubBodies.sol = sun;
   if (!hc && !calm) {
-    const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(2.0, 16, 12),
-      new THREE.MeshBasicMaterial({ color: 0xff9a3c, transparent: true, opacity: 0.2, depthWrite: false })
-    );
-    hubGroup.add(glow);
+    hubGroup.add(glow(0xff9a3c, 6.5, 0.6));
   }
 
   // Planets (with optional real textures + animation handles)
@@ -401,10 +440,7 @@ function buildHub() {
     hubGroup.add(m);
     hubBodies[name] = m;
     if (!hc && atm) {
-      const at = new THREE.Mesh(
-        new THREE.SphereGeometry(r * 1.12, 20, 14),
-        new THREE.MeshBasicMaterial({ color: atm, transparent: true, opacity: 0.22, depthWrite: false, side: THREE.BackSide })
-      );
+      const at = glow(atm, r * 3.2, 0.55);
       at.position.copy(pos);
       at.userData = { follow: name };
       hubGroup.add(at);
@@ -641,17 +677,7 @@ function buildBody(body) {
 
   // Atmosphere shell
   if (!hc) {
-    const at = new THREE.Mesh(
-      new THREE.SphereGeometry(R * 1.035, 32, 24),
-      new THREE.MeshBasicMaterial({
-        color: ATM[body],
-        transparent: true,
-        opacity: calm ? 0.12 : 0.22,
-        side: THREE.BackSide,
-        depthWrite: false
-      })
-    );
-    bodyGroup.add(at);
+    bodyGroup.add(glow(ATM[body], R * 3.1, calm ? 0.4 : 0.6));
   }
 
   // Markers
@@ -742,10 +768,7 @@ function buildDeep() {
     const dl = new THREE.DirectionalLight(0xffffff, 1.4);
     dl.position.set(4, 8, 6);
     scene.add(dl);
-    if (!calm) deepGroup.add(new THREE.Mesh(
-      new THREE.SphereGeometry(0.7, 16, 12),
-      new THREE.MeshBasicMaterial({ color: 0xff9a3c, transparent: true, opacity: 0.18, depthWrite: false })
-    ));
+    if (!calm) deepGroup.add(glow(0xff9a3c, 2.6, 0.6));
   }
 
   // Concentric rings
@@ -896,13 +919,13 @@ function cardHtml(it) {
     .replace(/(O que é:|O que descobriu:|Onde está hoje:|What it is:|What it found:|Where it is today:)/g, "<br><b>$1</b>")
     .replace(/^<br>/, "");
   const img = `<div class="card-bg" aria-hidden="true" data-img="${it.imagem || ""}" data-id="${it.id}"></div>`;
-  let x = `${img}<div class="card-body"><h2 id="ct">${it.nome}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
+  let x = `<button id="cl" class="card-x" aria-label="${t().close}">✕</button><div class="card-scroll">${img}<div class="card-body"><h2 id="ct">${it.nome}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
   if (g(it, "por_que_ficou")) x += `<p><b>${t().why}:</b> ${g(it, "por_que_ficou")}</p>`;
   if (it.lat != null) x += `<p>${fmtC(it.lat, it.lng)}<small>${t().pos}</small></p>`;
   if (d) x += `<p><b>${t().dist}:</b> ${nf(it.distancia_ua.toFixed(1))} UA (${it.data_distancia}) · ${t().sig} ${nf(Math.round(it.distancia_ua * 8.317 / 60))} h</p>`;
   const rl = (it.relacionados || []).map(r => ITEMS.find(i => i.id === r)).filter(Boolean);
   if (rl.length) x += `<p><b>${t().rel}:</b></p><div class="row">${rl.map(r => `<button data-go="${r.corpo}/${r.id}">${r.nome}</button>`).join("")}</div>`;
-  return x + `<div class="row"><button id="ls">${t().listen}</button><button id="cl">${t().close}</button></div></div>`;
+  return x + `<div class="row"><button id="ls">${t().listen}</button></div></div></div>`;
 }
 
 const up = () => { location.hash = cur.id ? "#" + cur.b : ""; };
@@ -1274,7 +1297,6 @@ $("#app").addEventListener("animationend", e => { if (e.animationName === "scan"
 addEventListener("resize", () => { onResize(); if (currentMode === "hub") buildHub(); else needsRender = true; });
 addEventListener("hashchange", () => render());
 
-/* Brilhos e tela de carregamento */
 {
   const sp = document.querySelector(".sparkles");
   for (let i = 0; i < 16; i++) {
