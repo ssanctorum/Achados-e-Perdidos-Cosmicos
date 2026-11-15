@@ -1287,7 +1287,6 @@ function about() {
   const tt = t(), D = $("#dlg");
   $("#dt").textContent = tt.about;
   $("#dn").textContent = tt.note;
-  $("#dc").textContent = tt.close;
   $("#dx").setAttribute("aria-label", tt.close);
   D.lang = lang;
   $("#dl").innerHTML = ITEMS.map(i =>
