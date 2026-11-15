@@ -123,11 +123,6 @@ const skyJD = () => {
   const q = new URLSearchParams(location.search).get("d"), t0 = q ? Date.parse(q + "T12:00:00Z") : NaN;
   return (isNaN(t0) ? Date.now() : t0) / 864e5 + 2440587.5;
 };
-const skyDate = () => new Date((skyJD() - 2440587.5) * 864e5).toLocaleDateString(lang === "pt" ? "pt-BR" : "en-US", { day: "numeric", month: "long", year: "numeric" });
-const distEM = () => {
-  const j = skyJD(), a = helio("terra", j), b = helio("marte", j);
-  return Math.hypot(a[0] - b[0], a[1] - b[1]);
-};
 
 /* ---------- Three.js setup ---------- */
 const cv = $("#cv");
@@ -310,7 +305,6 @@ function onResize() {
 }
 
 let needsRender = true;
-function requestDraw() { needsRender = true; }
 
 function disposeGroup(g) {
   if (!g) return;

@@ -236,9 +236,6 @@ html.hc #hint {
     opacity: .95;
 }
 
-html.hc #hdist {
-    color: var(--tx);
-}
 .pl {
     position: absolute;
     transform: translate(-50%,-50%);
@@ -632,7 +629,7 @@ html.hc .p, html.hc #ap, html.hc .item .p, html.hc .item #ap { background: #000;
 .card-ls { top: 54px; font-size: .95rem; }
 .card-scroll { scrollbar-width: thin; }
 
-.p, #ap, #card, #list, #seal, .lbl, dialog, select, .card-bg, .card-img, button:not(.pl):not(.card-x) { border-radius: 0; }
+.p, #ap, #card, #list, #seal, .lbl, dialog, select, .card-bg, button:not(.pl):not(.card-x) { border-radius: 0; }
 .p, #ap { background: #2a1850d9; border: 1px solid #ffffff2e; box-shadow: none; }
 .item .p, .item #ap { background: #2a1850d9; }
 button:not(.pl):not(.card-x), select { background: #ffffff1f; border: 2px solid transparent; }
