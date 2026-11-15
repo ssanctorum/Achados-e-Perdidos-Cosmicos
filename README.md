@@ -1,85 +1,114 @@
 # Achados e Perdidos Cósmicos (Cosmic Lost & Found)
 
-Explorador interativo do hardware que a NASA deixou na Lua, em Marte e no espaço profundo.  
-Projeto da equipe **Cuscuz Cósmico** para o [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/).
-
-Desafio: *Abandoned but not Forgotten* — contar a história desse equipamento para estudantes, mostrando a ciência que ele tornou possível.
+Explorador interativo do hardware que a NASA deixou na Lua, em Marte, na Terra e no espaço profundo.
+Projeto da equipe **Cuscuz Cósmico** para o [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/), desafio *Abandoned but not Forgotten*.
 
 ## Demo
 
-- Repositório: https://github.com/ssanctorum/Achados-e-Perdidos-Cosmicos  
-- Site (GitHub Pages): https://ssanctorum.github.io/Achados-e-Perdidos-Cosmicos/
+- Site: https://ssanctorum.github.io/Achados-e-Perdidos-Cosmicos/
+- Repositório: https://github.com/ssanctorum/Achados-e-Perdidos-Cosmicos
+- Link direto para um item (exemplo): `#lua/apollo11_lm`
 
-## O que faz
+## O problema e a ideia
 
-- **Hub**: sistema solar visto de cima, com Terra, Marte e Lua nas posições reais do dia.
-- **Globos**: zoom até o ponto aproximado de cada item na Lua, em Marte ou na Terra.
-- **Espaço profundo**: trajetórias simplificadas de sondas (Voyager, Pioneer).
-- Cada card: o que é, o que descobriu, onde está hoje, último sinal e descrição visual (audiodescrição).
+Equipamentos de missões da NASA ficaram parados na Lua, em Marte e a caminho das estrelas. Quase ninguém conta a história deles para crianças, e menos ainda de um jeito que todas possam explorar.
 
-## Stack
+Criamos um mapa interativo para estudantes de 10 a 14 anos. Cada item explica **o que é, o que descobriu, onde está hoje e qual foi o último sinal**. O projeto foi pensado desde o início para ser explorável de vários jeitos: visual, teclado, áudio, Libras e modo calmo.
 
-- HTML, CSS e JavaScript
-- **Three.js** (WebGL) para hub, globos e espaço profundo
-- Lista, cards e controles em **HTML real** (acessíveis)
-- Dados em `data/items.json` (única fonte de conteúdo)
-- Fonte Lexend hospedada localmente
+## O que o app faz
 
-## Dados da NASA
+- **Hub:** o sistema solar visto de cima, com Sol, órbitas e Terra, Marte e Lua nas posições aproximadas do dia. Dá para girar, inclinar e dar zoom (botão "Restaurar vista" volta ao início).
+- **Terra, Lua e Marte:** globos que giram e dão zoom até o ponto aproximado de cada item.
+- **Rumo às estrelas:** Voyager 1 e 2 e Pioneer 10 e 11, na direção aproximada em que viajam, com a distância em UA e a data da medição.
+- **17 itens** (2 na Terra, 5 na Lua, 6 em Marte, 4 no espaço profundo). Cada card tem história, descrição visual (usada na audiodescrição), último sinal, "por que ficou", itens relacionados e foto da NASA.
+- **Contador de itens explorados**, em PT e EN.
 
-Usamos apenas dados abertos e páginas oficiais:
+## Dados da NASA: quais e onde
 
-- Coordenadas e fichas de missão: [NSSDCA](https://nssdc.gsfc.nasa.gov/), páginas de missão da NASA e JPL
-- Cada item em `items.json` tem o campo `fonte` e `data_consulta`
-- Posições de Terra/Marte/Lua no hub: elementos keplerianos aproximados (JPL), só para visualização
+| O que | De onde | Onde está no projeto |
+| --- | --- | --- |
+| Fatos, datas e status dos itens | Páginas oficiais da NASA (NSSDCA, science.nasa.gov, mars.nasa.gov, ILRS, Lunar Sample Curator do JSC) | `data/items.json`, campo `fonte` de cada item |
+| Coordenadas (lat/lng) | Fichas das missões (ver `fonte`) | `data/items.json` |
+| Posição de Terra, Marte e Lua no hub | Elementos keplerianos aproximados (JPL) | cálculo em `js/app.js`, só para visualização |
+| Direção das sondas (`ra_h`, `dec_deg`) e distância (UA) | Valores aproximados, a conferir no JPL Horizons | `data/items.json` |
+| Fotos dos cards | NASA Image and Video Library (`images-assets.nasa.gov`), carregadas do site da NASA | campo `imagem` em `data/items.json` |
+| Texturas de Terra e Lua | Exemplos do three.js (repositório MIT) | `textures/`, créditos em `CREDITS.md` |
+| Texturas de Marte e Sol | Solar System Scope (CC BY 4.0) | `textures/`, créditos em `CREDITS.md` |
 
-Não usamos o nome “NASA” no título do app para não sugerir endosso oficial. Siga as [diretrizes de mídia da NASA](https://www.nasa.gov/nasa-brand-center/images-and-media/) se adicionar imagens.
+Não usamos o nome "NASA" no título do app para não sugerir endosso oficial.
 
 ## Acessibilidade (meta WCAG 2.2 AA)
 
-Explorável de vários jeitos:
-
 | Modo | Como |
-|------|------|
-| Visual | Globos e hub em WebGL, alto contraste |
-| Teclado | Tab, Enter, Esc; foco gerenciado; hash na URL |
-| Áudio | Botão “Ouvir” (Web Speech API) lê história + descrição visual |
-| Libras | VLibras em PT-BR (cards em HTML real) |
-| Modo calmo | Sem movimento automático, menos brilho, cores menos saturadas |
+| --- | --- |
+| Visual | Alto contraste (também via `prefers-contrast`), tamanho do texto e espaçamento ajustáveis, descrição visual em todo card |
+| Teclado | Tab e Enter, Esc volta, setas giram o hub, Home restaura a vista, foco gerenciado, link direto por `#corpo/item` |
+| Áudio | Botão "Ouvir" (Web Speech API) lê nome, história, descrição visual e último sinal; botão "Parar" |
+| Libras | VLibras só em PT-BR, com os cards em HTML real; não abre sozinho |
+| Modo calmo | Sem movimento automático, menos brilho, cores menos saturadas (também via `prefers-reduced-motion`) |
+| Sem WebGL | Hub vira botões em HTML; lista, cards e "Ouvir" continuam funcionando |
 
-Checklist:
+Lista, cards e controles são HTML real; o 3D é um complemento visual, não o único caminho.
 
-- [x] HTML semântico, botões reais, `aria-label` / `aria-live`
-- [x] `prefers-reduced-motion` e `prefers-contrast` + painel manual
-- [x] Tamanho de texto e espaçamento ajustáveis
-- [ ] Teste formal com NVDA / VoiceOver / TalkBack
-- [ ] Validação com usuários reais (se não houver, ser honesto no pitch)
+**Status honesto:**
+
+- [x] HTML semântico, botões reais, `aria-live` e idioma da página (`lang`) atualizado ao trocar PT e EN
+- [x] `prefers-reduced-motion` e `prefers-contrast`, com painel manual
+- [x] Testes automatizados da lógica (navegação, giro do hub, modo sem WebGL, VLibras) e validação do `items.json`
+- [ ] Teste com leitor de tela (NVDA, VoiceOver ou TalkBack)
+- [ ] Medição com axe e Lighthouse
+- [ ] Validação com pessoas reais (cegas, surdas, autistas)
+- [x] Medição de desempenho em celular e Chromebook fracos
+
+Seguimos as diretrizes WCAG 2.2 e boas práticas, mas **ainda não afirmamos conformidade**: o app não foi validado por pessoas com deficiência.
+
+## Limites e honestidade
+
+- **Escala fictícia.** Tamanhos e distância Terra-Lua são ampliados; há um aviso fixo na interface. As distâncias reais aparecem em números.
+- **Dados em conferência.** Cada item tem `fonte` e `data_consulta`, mas a conferência item a item nas fontes oficiais ainda está em andamento. Posições são aproximadas e não servem para navegação.
+- **Uso de IA.** Parte do código e dos textos foi feita com ajuda de IA. Está descrito em [AI_USAGE.md](AI_USAGE.md).
+- **VLibras** é uma ferramenta externa: precisa de internet, só existe em PT-BR e o avatar pode errar termos técnicos.
+- **Fotos** vêm do site da NASA; se não carregarem, o card mostra o modelo 3D.
+- **Voz do "Ouvir"** depende do navegador e do aparelho.
 
 ## Como rodar
 
-Com **Live Server** (VS Code/Cursor) ou GitHub Pages — ou qualquer servidor estático na pasta do projeto.
+```
+python3 -m http.server
+```
+
+Abra `http://localhost:8000`. Os dados são carregados por `fetch`, então não funciona abrindo o arquivo direto (`file://`).
+
+Validação dos dados:
+
+```
+python3 scripts/validate.py      # estrutura, limite de palavras, relacionados (0 erros)
+python3 scripts/check_links.py   # fontes e fotos respondem (precisa de internet)
+```
 
 ## Estrutura
 
 ```
-index.html          # marcação + Three.js (CDN)
-css/styles.css      # tema e modos de acessibilidade
-js/app.js           # cenas Three.js, navegação, i18n
-data/items.json     # itens e textos
-fonts/              # Lexend local
-LICENSE             # MIT
-CREDITS.md
-AI_USAGE.md
+index.html            # marcação (HTML real)
+css/styles.css        # tema e modos de acessibilidade
+js/app.js             # navegação, cenas Three.js, i18n, acessibilidade
+js/models.js          # modelos 3D dos itens
+js/vendor/            # Three.js (r160), local
+data/items.json       # itens e textos (única fonte de conteúdo)
+textures/             # texturas de Sol, Terra, Lua e Marte
+fonts/                # Lexend, local
+scripts/              # validate.py
+CREDITS.md  AI_USAGE.md  LICENSE
 ```
 
-## Pendências
+## Próximos passos
 
-- Vídeo de backup (1–2 min)
-- Teste em celular / Chromebook e com leitor de tela
-- Arrastar o globo (opcional)
-- Distância viva da Voyager (opcional; hoje valor estático com data)
-- Imagens oficiais nos cards (opcional, com crédito)
+- Testes com leitor de tela e com pessoas reais; vídeos em Libras com intérprete humano
+- Conferir todos os itens, coordenadas e fotos nas fontes
+- Distância viva da Voyager (JPL Horizons), hoje valor estático com data
+- Modo offline (PWA), terceiro idioma (ES), mais itens
+- Sonificação e realidade aumentada
 
-## Licença
+## Licença e créditos
 
-MIT — ver `LICENSE`. Three.js e Lexend: ver `CREDITS.md`.
+Código sob licença MIT (`LICENSE`). Bibliotecas, fontes, dados e mídia: `CREDITS.md`. Uso de IA: `AI_USAGE.md`.
