@@ -165,6 +165,9 @@ function moonAt(a) {
 function parkMoon() {
   const w = cv.clientWidth, h = cv.clientHeight;
   camera.updateMatrixWorld(true);
+  moonAt(-Math.PI / 2);
+  const t0 = hubBodies.lua.position.clone().project(camera);
+  if ((-t0.y * 0.5 + 0.5) * h > 24) return;
   let best = 0, bestScore = -1e9;
   for (let d = 0; d < 360; d += 10) {
     const a = d * rad;
@@ -252,7 +255,7 @@ function initThree() {
   }
   mouse = new THREE.Vector2();
   renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: !calm, alpha: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
   renderer.setClearColor(0x000000, 0);
   if (THREE.SRGBColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
   scene = new THREE.Scene();
@@ -543,7 +546,7 @@ function followMoonButton() {
   b.style.left = ((v.x * 0.5 + 0.5) * w) + "px";
   b.style.top = ((-v.y * 0.5 + 0.5) * h) + "px";
   // label on the side facing away from Earth, so it does not cover Earth's label
-  const side = (v.y > u.y ? "t" : "b") + (v.x < u.x ? "l" : "r");
+  const side = calm ? "l" : (v.y > u.y ? "t" : "b") + (v.x < u.x ? "l" : "r");
   if (b.dataset.side !== side) b.dataset.side = side;
 }
 
@@ -1043,6 +1046,9 @@ function render(quiet) {
   }
 
   if (nb !== prev.b) {
+    cv.classList.remove("in", "out");
+    void cv.offsetWidth;
+    cv.classList.add(nb ? "in" : "out");
     if (nb && nb !== "espaco") cam = { lat: DV[nb][0], lng: DV[nb][1], k: 1 };
     draw();
   }
@@ -1297,9 +1303,10 @@ $("#app").addEventListener("animationend", e => { if (e.animationName === "scan"
 addEventListener("resize", () => { onResize(); if (currentMode === "hub") buildHub(); else needsRender = true; });
 addEventListener("hashchange", () => render());
 
+/* Brilhos e tela de carregamento */
 {
   const sp = document.querySelector(".sparkles");
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 12; i++) {
     const e = document.createElement("i");
     e.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 100}%;--d:${3 + Math.random() * 4}s;--w:${Math.random() * 5}s;scale:${0.6 + Math.random()}`;
     sp.appendChild(e);
