@@ -579,8 +579,8 @@ html.hc .card-body { background: #000; padding-top: 14px; }
 
 /* ---- Visual moderno: cantos arredondados, movimento suave, brilhos ---- */
 button { transition: transform .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease; }
-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px #0006; border-color: var(--ac); }
-button:active:not(:disabled) { transform: translateY(0) scale(.97); }
+button:not(.pl):hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px #0006; border-color: var(--ac); }
+button:not(.pl):active:not(:disabled) { transform: translateY(0) scale(.97); }
 #card, #list { animation: pin .45s cubic-bezier(.2,.8,.2,1) both; }
 #card { animation-name: rise; }
 @keyframes pin { from { opacity: 0; transform: translateX(24px); } }

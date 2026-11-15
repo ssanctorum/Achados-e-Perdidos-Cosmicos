@@ -364,7 +364,7 @@ function buildHub() {
 
   // Sun
   const sunGeo = new THREE.SphereGeometry(hc ? 0.55 : 0.85, 32, 24);
-  const sunMap = (!hc) ? getTexture("sol") : null;
+  const sunMap = getTexture("sol");
   const sunMat = hc
     ? new THREE.MeshBasicMaterial({ color: 0xffb000 })
     : sunMap
@@ -386,10 +386,10 @@ function buildHub() {
   hubBodies = {};
   function planet(pos, r, color, atm, name) {
     const geo = new THREE.SphereGeometry(r, 32, 24);
-    const map = (!hc && typeof THREE !== "undefined") ? getTexture(name) : null;
+    const map = getTexture(name);
     let mat;
     if (hc) {
-      mat = new THREE.MeshBasicMaterial({ color });
+      mat = new THREE.MeshBasicMaterial(map ? { map } : { color });
     } else if (map) {
       mat = new THREE.MeshStandardMaterial({ map, roughness: 0.85, metalness: 0.05 });
     } else {
@@ -602,10 +602,10 @@ function buildBody(body) {
   const R = 1;
   const col = COL[body] || COL.terra;
   const geo = new THREE.SphereGeometry(R, 64, 48);
-  const map = (!hc) ? getTexture(body) : null;
+  const map = getTexture(body);
   let mat;
   if (hc) {
-    mat = new THREE.MeshBasicMaterial({ color: col.base });
+    mat = new THREE.MeshBasicMaterial(map ? { map } : { color: col.base });
   } else if (map) {
     mat = new THREE.MeshStandardMaterial({ map, roughness: 0.9, metalness: 0.02 });
   } else {
@@ -732,7 +732,7 @@ function buildDeep() {
   deepGroup.add(makeStars(1400));
 
   // Sun-ish center
-  const sunMap = hc ? null : getTexture("sol");
+  const sunMap = getTexture("sol");
   const sun = new THREE.Mesh(
     new THREE.SphereGeometry(0.35, 24, 18),
     sunMap ? new THREE.MeshBasicMaterial({ map: sunMap }) : new THREE.MeshBasicMaterial({ color: hc ? 0xffb000 : 0xffd166 })
@@ -1230,6 +1230,12 @@ $("#ab").onclick = () => {
   $("#ap").hidden = !o;
   $("#ab").setAttribute("aria-expanded", o);
 };
+
+document.addEventListener("pointerdown", e => {
+  if ($("#ap").hidden || e.target.closest("#ap, #ab")) return;
+  $("#ap").hidden = true;
+  $("#ab").setAttribute("aria-expanded", "false");
+});
 
 const mode = () => {
   document.documentElement.classList.toggle("hc", hc);
