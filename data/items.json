@@ -9,8 +9,8 @@
     "lng": 23.47297,
     "historia_pt": "O que é: a base do módulo lunar que pousou os primeiros humanos na Lua. O que descobriu: amostras de rocha e solo, medições sísmicas e o refletor a laser que ainda é usado. Onde está hoje: no Mare Tranquillitatis, intacto e visível do LRO.",
     "historia_en": "What it is: the descent stage of the lunar module that landed the first humans on the Moon. What it found: rock and soil samples, seismic measurements and the laser reflector still in use. Where it is today: in Mare Tranquillitatis, intact and visible from LRO.",
-    "descricao_visual_pt": "Estágio de descida octogonal com quatro pernas, cor dourada e prateada. Fica no solo cinza da Lua.",
-    "descricao_visual_en": "Octagonal descent stage with four legs, gold and silver color. Sits on the gray lunar soil.",
+    "descricao_visual_pt": "Estágio de descida octogonal do módulo lunar, com cerca de quatro metros de largura e quatro pernas longas. Cor dourada nas folhas isolantes e prateada na estrutura. Fica parado no solo cinza e poeirento do Mare Tranquillitatis, na Lua.",
+    "descricao_visual_en": "Octagonal lunar module descent stage, about four meters wide, with four long legs. Gold thermal blankets and silver structure. It stands still on the gray, dusty soil of Mare Tranquillitatis on the Moon.",
     "ultimo_sinal_pt": "Missão concluída em 24 de julho de 1969 com o retorno da tripulação. O estágio permanece no local.",
     "ultimo_sinal_en": "Mission completed on 24 July 1969 with crew return. The stage remains on site.",
     "por_que_ficou_pt": "Projetado para ficar na Lua após a decolagem do estágio de subida.",
@@ -21,7 +21,7 @@
       "lrrr"
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "apollo15_lm_lrv",
@@ -33,8 +33,8 @@
     "lng": 3.63386,
     "historia_pt": "O que é: o primeiro veículo dirigido por astronautas na Lua (o rover) e o estágio de descida do módulo lunar. O que descobriu: a “Rocha Gênesis”, amostra da crosta primitiva da Lua, e vidro vulcânico verde. Onde está hoje: perto do Hadley Rille, com o rover estacionado ao lado do módulo.",
     "historia_en": "What it is: the first vehicle driven by astronauts on the Moon (the rover) and the lunar module descent stage. What it found: the “Genesis Rock”, a sample of the Moon’s early crust, and green volcanic glass. Where it is today: near Hadley Rille, with the rover parked beside the module.",
-    "descricao_visual_pt": "Estágio de descida do LM e rover de quatro rodas com antenas. Cores prateada e dourada. Ficam no solo lunar acidentado.",
-    "descricao_visual_en": "LM descent stage and four-wheeled rover with antennas. Silver and gold colors. Sit on the rugged lunar surface.",
+    "descricao_visual_pt": "Estágio de descida do módulo lunar e o rover lunar de quatro rodas, com antenas e assentos abertos. Cores prateada e dourada. Ficam no solo lunar acidentado e escuro da região de Hadley, na Lua, próximos um do outro.",
+    "descricao_visual_en": "Lunar module descent stage and four-wheeled lunar rover with antennas and open seats. Silver and gold colors. They rest on the rugged, dark lunar soil of the Hadley region on the Moon, close to each other.",
     "ultimo_sinal_pt": "Missão concluída em agosto de 1971. Equipamentos permanecem no local de pouso.",
     "ultimo_sinal_en": "Mission completed in August 1971. Equipment remains at the landing site.",
     "por_que_ficou_pt": "O estágio de descida e o rover foram deixados intencionalmente após a missão.",
@@ -56,8 +56,8 @@
     "lng": -23.418,
     "historia_pt": "O que é: um lander robótico que pousou antes da Apollo. O que descobriu: propriedades do solo lunar e fotos da superfície. Onde está hoje: no Oceanus Procellarum; partes foram visitadas e recuperadas pela Apollo 12.",
     "historia_en": "What it is: a robotic lander that touched down before Apollo. What it found: lunar soil properties and surface photos. Where it is today: in Oceanus Procellarum; parts were visited and recovered by Apollo 12.",
-    "descricao_visual_pt": "Lander com três pernas, antena e câmera. Cor branca e prateada. Fica no solo lunar.",
-    "descricao_visual_en": "Three-legged lander with antenna and camera. White and silver color. Sits on the lunar soil.",
+    "descricao_visual_pt": "Lander baixo com três pernas, antena de prato e câmera montada. Cor branca e prateada, tamanho de alguns metros. Fica no solo cinza da Lua, no Oceanus Procellarum, onde depois a Apollo 12 pousou perto.",
+    "descricao_visual_en": "Low three-legged lander with a dish antenna and mounted camera. White and silver color, a few meters across. It sits on the gray lunar soil of Oceanus Procellarum, where Apollo 12 later landed nearby.",
     "ultimo_sinal_pt": "Último contato em 4 de maio de 1967. Missão concluída com sucesso.",
     "ultimo_sinal_en": "Last contact on 4 May 1967. Mission completed successfully.",
     "por_que_ficou_pt": "Projetado para pousar e operar no local; não havia retorno planejado.",
@@ -66,7 +66,7 @@
       "apollo11_lm"
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1967-035A",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "alsep",
@@ -78,8 +78,8 @@
     "lng": null,
     "historia_pt": "O que é: conjunto de instrumentos científicos deixados em cinco locais Apollo. O que descobriu: terremotos lunares, fluxo de calor interno, vento solar e partículas. Onde está hoje: ainda no solo lunar; desligados em 1977.",
     "historia_en": "What it is: a set of scientific instruments left at five Apollo sites. What it found: moonquakes, internal heat flow, solar wind and particles. Where it is today: still on the lunar surface; switched off in 1977.",
-    "descricao_visual_pt": "Estação central com painéis e vários sensores espalhados. Cores metálicas e prateadas. Fica perto dos módulos de pouso Apollo.",
-    "descricao_visual_en": "Central station with panels and several sensors spread out. Metallic and silver colors. Sits near the Apollo landing modules.",
+    "descricao_visual_pt": "Estação central compacta com painéis e cabos, e vários sensores espalhados ao redor no solo. Cores metálicas e prateadas. Fica perto dos módulos de pouso Apollo na superfície cinza da Lua, formando um pequeno conjunto de instrumentos.",
+    "descricao_visual_en": "Compact central station with panels and cables, and several sensors spread on the ground around it. Metallic and silver colors. It sits near the Apollo landing modules on the gray lunar surface, forming a small instrument cluster.",
     "ultimo_sinal_pt": "Desligados remotamente em 30 de setembro de 1977 por decisão da NASA.",
     "ultimo_sinal_en": "Remotely switched off on 30 September 1977 by NASA decision.",
     "por_que_ficou_pt": "Projetados para operar sozinhos por anos após a partida dos astronautas.",
@@ -89,7 +89,7 @@
       "apollo15_lm_lrv"
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/planetary/lunar/apollo_alsep_restore.html",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "lrrr",
@@ -101,8 +101,8 @@
     "lng": 23.4731,
     "historia_pt": "O que é: painel de espelhos especiais deixado na Lua. O que descobriu: mede a distância Terra-Lua com precisão de centímetros até hoje. Onde está hoje: ainda funciona; cientistas da Terra apontam lasers para ele.",
     "historia_en": "What it is: a panel of special mirrors left on the Moon. What it found: measures Earth-Moon distance to centimeter precision even today. Where it is today: still works; scientists on Earth point lasers at it.",
-    "descricao_visual_pt": "Painel retangular de prismas de vidro. Cor prateada/clara. Fica no solo lunar perto do local de pouso.",
-    "descricao_visual_en": "Rectangular panel of glass prisms. Silver/clear color. Sits on the lunar soil near the landing site.",
+    "descricao_visual_pt": "Painel retangular baixo de prismas de vidro, do tamanho de uma mala, com superfície clara e prateada. Fica fixo no solo cinza da Lua, perto dos locais de pouso Apollo, refletindo lasers enviados da Terra.",
+    "descricao_visual_en": "Low rectangular panel of glass prisms, about the size of a suitcase, with a clear silver surface. It sits fixed on the gray lunar soil near Apollo landing sites, reflecting laser beams sent from Earth.",
     "ultimo_sinal_pt": "Não transmite; reflete lasers. Ainda usado regularmente em 2026.",
     "ultimo_sinal_en": "Does not transmit; reflects lasers. Still used regularly in 2026.",
     "por_que_ficou_pt": "Foi deixado de propósito para experimentos de longa duração sem precisar de energia.",
@@ -111,7 +111,7 @@
       "apollo11_lm"
     ],
     "fonte": "https://ilrs.gsfc.nasa.gov/",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "sojourner",
@@ -123,8 +123,8 @@
     "lng": -33.55,
     "historia_pt": "O que é: o primeiro rover a operar em outro planeta. O que descobriu: composição de rochas e solo, e que Marte teve água no passado. Onde está hoje: em Ares Vallis, perto do lander Pathfinder.",
     "historia_en": "What it is: the first rover to operate on another planet. What it found: rock and soil composition, and that Mars had water in the past. Where it is today: in Ares Vallis, near the Pathfinder lander.",
-    "descricao_visual_pt": "Pequeno rover de seis rodas com painéis solares. Cor dourada e prateada. Fica na planície de Marte.",
-    "descricao_visual_en": "Small six-wheeled rover with solar panels. Gold and silver color. Sits on the Martian plain.",
+    "descricao_visual_pt": "Pequeno rover de seis rodas, pouco maior que um micro-ondas, com painéis solares planos no topo. Cor dourada e prateada. Fica parado na planície rochosa e avermelhada de Ares Vallis, em Marte, perto do lander Pathfinder.",
+    "descricao_visual_en": "Small six-wheeled rover, a bit larger than a microwave oven, with flat solar panels on top. Gold and silver color. It sits still on the rocky, reddish plain of Ares Vallis on Mars, near the Pathfinder lander.",
     "ultimo_sinal_pt": "Último contato em 27 de setembro de 1997. Comunicação perdida com o lander.",
     "ultimo_sinal_en": "Last contact on 27 September 1997. Communication with the lander was lost.",
     "por_que_ficou_pt": "Missão de demonstração tecnológica sem plano de retorno.",
@@ -134,7 +134,7 @@
       "opportunity"
     ],
     "fonte": "https://mars.nasa.gov/mars-exploration/missions/pathfinder/",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "spirit",
@@ -146,8 +146,8 @@
     "lng": 175.472636,
     "historia_pt": "O que é: um dos dois rovers gêmeos da missão MER. O que descobriu: evidências claras de água líquida no passado de Marte. Onde está hoje: em Gusev Crater, parado desde 2010.",
     "historia_en": "What it is: one of the two twin MER rovers. What it found: clear evidence of past liquid water on Mars. Where it is today: in Gusev Crater, stuck since 2010.",
-    "descricao_visual_pt": "Rover de seis rodas com painéis solares e braço robótico. Cor dourada. Fica em terreno rochoso de Marte.",
-    "descricao_visual_en": "Six-wheeled rover with solar panels and robotic arm. Gold color. Sits on rocky Martian terrain.",
+    "descricao_visual_pt": "Rover de seis rodas do tamanho de um carrinho de golfe, com painéis solares e um braço robótico curto. Cor dourada. Fica em terreno rochoso e avermelhado de Marte, na região de Gusev, onde a missão terminou.",
+    "descricao_visual_en": "Six-wheeled rover about the size of a golf cart, with solar panels and a short robotic arm. Gold color. It sits on rocky, reddish Martian terrain in the Gusev region, where the mission ended.",
     "ultimo_sinal_pt": "Último contato em 22 de março de 2010. Ficou preso em areia e perdeu energia no inverno.",
     "ultimo_sinal_en": "Last contact on 22 March 2010. It got stuck in sand and lost power in winter.",
     "por_que_ficou_pt": "Missão de exploração de superfície sem plano de retorno.",
@@ -157,7 +157,7 @@
       "sojourner"
     ],
     "fonte": "https://mars.nasa.gov/mer/mission/status_spiritAll.html",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "opportunity",
@@ -169,8 +169,8 @@
     "lng": -5.5266,
     "historia_pt": "O que é: o rover gêmeo da Spirit. O que descobriu: evidências de água antiga e viajou mais de 45 km. Onde está hoje: em Meridiani Planum, silencioso desde 2018.",
     "historia_en": "What it is: Spirit’s twin rover. What it found: evidence of ancient water and traveled more than 45 km. Where it is today: in Meridiani Planum, silent since 2018.",
-    "descricao_visual_pt": "Rover de seis rodas idêntico à Spirit, com painéis solares. Cor dourada. Fica em planície de Marte.",
-    "descricao_visual_en": "Six-wheeled rover identical to Spirit, with solar panels. Gold color. Sits on a Martian plain.",
+    "descricao_visual_pt": "Rover de seis rodas idêntico à Spirit, do tamanho de um carrinho de golfe, com painéis solares. Cor dourada. Fica em uma planície avermelhada de Marte, na região de Meridiani, onde parou após anos de exploração.",
+    "descricao_visual_en": "Six-wheeled rover identical to Spirit, about golf-cart size, with solar panels. Gold color. It sits on a reddish Martian plain in the Meridiani region, where it stopped after years of exploration.",
     "ultimo_sinal_pt": "Último contato em 10 de junho de 2018, após grande tempestade de poeira.",
     "ultimo_sinal_en": "Last contact on 10 June 2018 after a major dust storm.",
     "por_que_ficou_pt": "Missão de exploração de superfície sem plano de retorno.",
@@ -180,7 +180,7 @@
       "sojourner"
     ],
     "fonte": "https://mars.nasa.gov/mer/mission/status_opportunityAll.html",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "viking1",
@@ -192,8 +192,8 @@
     "lng": -47.95,
     "historia_pt": "O que é: o primeiro lander bem-sucedido da NASA em Marte. O que descobriu: imagens detalhadas, composição do solo e atmosfera; buscou sinais de vida. Onde está hoje: em Chryse Planitia, ainda visível de órbita.",
     "historia_en": "What it is: NASA’s first successful Mars lander. What it found: detailed surface images, soil and atmosphere composition; searched for signs of life. Where it is today: in Chryse Planitia, still visible from orbit.",
-    "descricao_visual_pt": "Lander com três pernas, antena de alto ganho e braço robótico. Cor branca e metálica. Fica em planície rochosa de Marte.",
-    "descricao_visual_en": "Three-legged lander with high-gain antenna and robotic arm. White and metallic colors. Sits on the rocky plains of Mars.",
+    "descricao_visual_pt": "Lander de três pernas, cerca de três metros de largura, com antena de alto ganho e braço robótico. Cor branca e metálica. Fica em uma planície rochosa e avermelhada de Marte, no local chamado Chryse Planitia.",
+    "descricao_visual_en": "Three-legged lander about three meters wide, with a high-gain antenna and robotic arm. White and metallic colors. It sits on a rocky, reddish plain of Mars at the site called Chryse Planitia.",
     "ultimo_sinal_pt": "Último contato em 11 de novembro de 1982, após comando errado da Terra.",
     "ultimo_sinal_en": "Last contact on 11 November 1982 after a faulty command from Earth.",
     "por_que_ficou_pt": "Projetado para operar no local; não havia plano de retorno.",
@@ -215,8 +215,8 @@
     "lng": 134.29,
     "historia_pt": "O que é: o segundo lander bem-sucedido da NASA em Marte. O que descobriu: imagens, clima e análise de solo no local Utopia Planitia. Onde está hoje: parado em Utopia Planitia desde 1980.",
     "historia_en": "What it is: NASA’s second successful Mars lander. What it found: images, weather and soil analysis at Utopia Planitia. Where it is today: sitting in Utopia Planitia since 1980.",
-    "descricao_visual_pt": "Lander de três pernas com antena e braço. Cor branca e metálica. Fica em planície rochosa de Marte.",
-    "descricao_visual_en": "Three-legged lander with antenna and arm. White and metallic colors. Sits on a rocky Martian plain.",
+    "descricao_visual_pt": "Lander de três pernas semelhante ao Viking 1, com antena e braço robótico. Cor branca e metálica. Fica em uma planície rochosa e fria de Marte, na região de Utopia Planitia, sob o céu rosado.",
+    "descricao_visual_en": "Three-legged lander similar to Viking 1, with antenna and robotic arm. White and metallic colors. It sits on a rocky, cold Martian plain in the Utopia Planitia region under the pinkish sky.",
     "ultimo_sinal_pt": "Último contato em 11 de abril de 1980, quando as baterias falharam.",
     "ultimo_sinal_en": "Last contact on 11 April 1980 when the batteries failed.",
     "por_que_ficou_pt": "Projetado para operar no local; sem plano de retorno.",
@@ -237,8 +237,8 @@
     "lng": -125.75,
     "historia_pt": "O que é: lander que pousou perto do polo norte de Marte. O que descobriu: gelo de água sob o solo e química do solo polar. Onde está hoje: em Vastitas Borealis, silencioso desde o inverno de 2008.",
     "historia_en": "What it is: a lander that touched down near Mars’ north pole. What it found: water ice under the soil and polar soil chemistry. Where it is today: in Vastitas Borealis, silent since the 2008 winter.",
-    "descricao_visual_pt": "Lander com painéis solares grandes e braço robótico. Cor dourada e prateada. Fica em terreno polar de Marte.",
-    "descricao_visual_en": "Lander with large solar panels and robotic arm. Gold and silver colors. Sits on polar Martian terrain.",
+    "descricao_visual_pt": "Lander baixo com dois grandes painéis solares abertos e um braço robótico. Cor dourada e prateada. Fica em terreno polar claro e irregular de Marte, perto do polo norte, onde o solo é coberto de gelo em parte do ano.",
+    "descricao_visual_en": "Low lander with two large open solar panels and a robotic arm. Gold and silver colors. It sits on bright, uneven polar terrain of Mars near the north pole, where the ground is partly ice-covered part of the year.",
     "ultimo_sinal_pt": "Último contato em 2 de novembro de 2008, quando a energia solar acabou no inverno polar.",
     "ultimo_sinal_en": "Last contact on 2 November 2008 when solar power ended in the polar winter.",
     "por_que_ficou_pt": "Missão de superfície sem plano de retorno.",
@@ -248,7 +248,7 @@
       "viking2"
     ],
     "fonte": "https://science.nasa.gov/mission/mars-phoenix/",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "voyager1",
@@ -261,8 +261,8 @@
     "data_distancia": "2026-11",
     "historia_pt": "O que é: a sonda mais distante da humanidade. O que descobriu: detalhes de Júpiter e Saturno; entrou no espaço interestelar em 2012. Onde está hoje: a cerca de 173 UA da Terra, enviando dados do meio interestelar.",
     "historia_en": "What it is: the farthest human-made object. What it found: details of Jupiter and Saturn; entered interstellar space in 2012. Where it is today: about 173 AU from Earth, still sending data from interstellar space.",
-    "descricao_visual_pt": "Sonda com grande antena branca de alto ganho, braços longos e instrumentos. Cor prateada e preta. Viaja no espaço interestelar.",
-    "descricao_visual_en": "Probe with large white high-gain antenna, long booms and instruments. Silver and black colors. Travels through interstellar space.",
+    "descricao_visual_pt": "Sonda do tamanho de um carro pequeno, com grande antena branca de alto ganho, braços longos e instrumentos escuros. Cor prateada e preta. Viaja sozinha no espaço interestelar escuro, muito além dos planetas do Sistema Solar.",
+    "descricao_visual_en": "Probe about the size of a small car, with a large white high-gain antenna, long booms and dark instruments. Silver and black colors. It travels alone through dark interstellar space, far beyond the planets of the Solar System.",
     "ultimo_sinal_pt": "Ainda em contato regular (novembro 2026). Sinal leva cerca de 24 horas para chegar à Terra.",
     "ultimo_sinal_en": "Still in regular contact (November 2026). Signal takes about 24 hours to reach Earth.",
     "por_que_ficou_pt": "Missão de exploração planetária e depois do espaço interestelar; sem plano de retorno.",
@@ -285,8 +285,8 @@
     "data_distancia": "2026-11",
     "historia_pt": "O que é: a única sonda a visitar Urano e Netuno. O que descobriu: detalhes dos quatro gigantes gasosos; entrou no espaço interestelar em 2018. Onde está hoje: a cerca de 145 UA da Terra, ainda enviando dados.",
     "historia_en": "What it is: the only probe to visit Uranus and Neptune. What it found: details of the four gas giants; entered interstellar space in 2018. Where it is today: about 145 AU from Earth, still sending data.",
-    "descricao_visual_pt": "Sonda idêntica à Voyager 1: antena branca grande, braços e instrumentos. Cor prateada e preta. Viaja no espaço interestelar.",
-    "descricao_visual_en": "Identical probe to Voyager 1: large white antenna, booms and instruments. Silver and black colors. Travels through interstellar space.",
+    "descricao_visual_pt": "Sonda idêntica à Voyager 1: corpo compacto, antena branca grande, braços longos e instrumentos. Cor prateada e preta. Viaja no espaço interestelar escuro, em outra direção, ainda enviando dados fracos para a Terra.",
+    "descricao_visual_en": "Identical probe to Voyager 1: compact body, large white antenna, long booms and instruments. Silver and black colors. It travels through dark interstellar space in another direction, still sending weak data back to Earth.",
     "ultimo_sinal_pt": "Ainda em contato (novembro 2026). Sinal leva cerca de 20 horas para chegar à Terra.",
     "ultimo_sinal_en": "Still in contact (November 2026). Signal takes about 20 hours to reach Earth.",
     "por_que_ficou_pt": "Missão de exploração dos planetas externos e depois do espaço interestelar; sem plano de retorno.",
@@ -296,7 +296,7 @@
       "pioneer10"
     ],
     "fonte": "https://science.nasa.gov/mission/voyager/where-are-voyager-1-and-voyager-2-now/",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "pioneer10",
@@ -309,8 +309,8 @@
     "data_distancia": "2026-11",
     "historia_pt": "O que é: a primeira sonda a atravessar o cinturão de asteroides e visitar Júpiter. O que descobriu: dados do vento solar, cinturão de radiação de Júpiter e meio interplanetário. Onde está hoje: silencioso, a cerca de 141 UA da Terra, viajando para o espaço interestelar.",
     "historia_en": "What it is: the first probe to cross the asteroid belt and visit Jupiter. What it found: solar wind data, Jupiter’s radiation belts and interplanetary medium. Where it is today: silent, about 141 AU from Earth, heading into interstellar space.",
-    "descricao_visual_pt": "Sonda com antena parabólica grande, braços longos e placa dourada com mensagem. Cor prateada. Viaja no espaço escuro em direção a Aldebaran.",
-    "descricao_visual_en": "Probe with large parabolic antenna, long booms and gold-colored plaque with a message. Silver color. Travels in dark space toward Aldebaran.",
+    "descricao_visual_pt": "Sonda com antena parabólica grande, braços longos e uma placa dourada com mensagem para quem a encontrar. Cor prateada. Viaja no espaço escuro, afastando-se do Sol em direção aproximada à estrela Aldebaran.",
+    "descricao_visual_en": "Probe with a large parabolic antenna, long booms and a gold-colored plaque with a message for whoever finds it. Silver color. It travels through dark space, moving away from the Sun roughly toward the star Aldebaran.",
     "ultimo_sinal_pt": "Último sinal fraco detectado em 23 de janeiro de 2003. Tentativas posteriores falharam por falta de energia.",
     "ultimo_sinal_en": "Last weak signal detected on 23 January 2003. Later attempts failed due to power loss.",
     "por_que_ficou_pt": "Missão de exploração sem plano de retorno; continua em trajetória interestelar.",
@@ -321,7 +321,7 @@
       "pioneer11"
     ],
     "fonte": "https://science.nasa.gov/mission/pioneer-10/",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "pioneer11",
@@ -334,8 +334,8 @@
     "data_distancia": "2026-11",
     "historia_pt": "O que é: a primeira sonda a visitar Saturno. O que descobriu: dados de Júpiter e Saturno, incluindo os anéis. Onde está hoje: silencioso, a cerca de 119 UA da Terra, viajando para o espaço interestelar.",
     "historia_en": "What it is: the first probe to visit Saturn. What it found: data on Jupiter and Saturn, including the rings. Where it is today: silent, about 119 AU from Earth, heading into interstellar space.",
-    "descricao_visual_pt": "Sonda com antena parabólica e braços. Cor prateada. Viaja no espaço escuro.",
-    "descricao_visual_en": "Probe with parabolic antenna and booms. Silver color. Travels in dark space.",
+    "descricao_visual_pt": "Sonda semelhante à Pioneer 10, com antena parabólica e braços longos de instrumentos. Cor prateada. Viaja no espaço escuro e frio, afastando-se do Sistema Solar em uma trajetória diferente da Pioneer 10.",
+    "descricao_visual_en": "Probe similar to Pioneer 10, with a parabolic antenna and long instrument booms. Silver color. It travels through dark, cold space, leaving the Solar System on a different path from Pioneer 10.",
     "ultimo_sinal_pt": "Último contato útil em 24 de novembro de 1995. Depois a Terra saiu do campo de visão da antena.",
     "ultimo_sinal_en": "Last useful contact on 24 November 1995. Later Earth moved out of the antenna’s view.",
     "por_que_ficou_pt": "Missão de exploração sem plano de retorno.",
@@ -345,7 +345,7 @@
       "voyager1"
     ],
     "fonte": "https://science.nasa.gov/mission/pioneer-11/",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "genesis",
@@ -357,8 +357,8 @@
     "lng": -113.21,
     "historia_pt": "O que é: a primeira missão da NASA a trazer material do vento solar desde a Apollo. O que descobriu: amostras de partículas do Sol para estudar a composição do sistema solar. Onde está hoje: a cápsula caiu no deserto de Utah e foi recuperada; amostras estão sob curadoria da NASA.",
     "historia_en": "What it is: NASA’s first mission to return solar wind material since Apollo. What it found: samples of solar particles to study the composition of the solar system. Where it is today: the capsule crashed in the Utah desert and was recovered; samples are under NASA curation.",
-    "descricao_visual_pt": "Cápsula redonda de retorno com escudo térmico. Cor metálica e danificada após a queda. Recuperada no deserto de Utah.",
-    "descricao_visual_en": "Round sample-return capsule with heat shield. Metallic color, damaged after impact. Recovered in the Utah desert.",
+    "descricao_visual_pt": "Cápsula redonda de retorno de amostras, do tamanho de um pneu grande, com escudo térmico. Cor metálica, danificada após a queda. Foi recuperada no deserto de Utah, na Terra, e depois levada para análise em laboratório.",
+    "descricao_visual_en": "Round sample-return capsule about the size of a large tire, with a heat shield. Metallic color, damaged after impact. It was recovered in the Utah desert on Earth and later taken to a lab for analysis.",
     "ultimo_sinal_pt": "A cápsula pousou (hard landing) em 8 de setembro de 2004. Missão concluída com recuperação parcial das amostras.",
     "ultimo_sinal_en": "The capsule hard-landed on 8 September 2004. Mission completed with partial sample recovery.",
     "por_que_ficou_pt": "Foi projetada para retornar à Terra com as amostras; o bus da sonda ficou no espaço.",
@@ -367,7 +367,7 @@
       "stardust"
     ],
     "fonte": "https://science.nasa.gov/mission/genesis/",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   },
   {
     "id": "stardust",
@@ -379,8 +379,8 @@
     "lng": -113.0,
     "historia_pt": "O que é: a primeira missão a trazer material de um cometa. O que descobriu: partículas do cometa Wild 2 e poeira interestelar. Onde está hoje: a cápsula pousou com sucesso no deserto de Utah e está em exposição no Smithsonian.",
     "historia_en": "What it is: the first mission to return material from a comet. What it found: particles from comet Wild 2 and interstellar dust. Where it is today: the capsule landed successfully in the Utah desert and is on display at the Smithsonian.",
-    "descricao_visual_pt": "Cápsula de retorno com escudo térmico. Cor metálica. Recuperada intacta e hoje exposta em museu.",
-    "descricao_visual_en": "Sample-return capsule with heat shield. Metallic color. Recovered intact and now on museum display.",
+    "descricao_visual_pt": "Cápsula de retorno de amostras com escudo térmico, tamanho de uma mala média. Cor metálica. Foi recuperada intacta no deserto e hoje fica exposta em museu na Terra, longe do espaço onde coletou o material.",
+    "descricao_visual_en": "Sample-return capsule with a heat shield, about the size of a medium suitcase. Metallic color. It was recovered intact in the desert and is now on museum display on Earth, far from the space where it collected material.",
     "ultimo_sinal_pt": "Pouso bem-sucedido em 15 de janeiro de 2006. Missão concluída com amostras intactas.",
     "ultimo_sinal_en": "Successful landing on 15 January 2006. Mission completed with intact samples.",
     "por_que_ficou_pt": "Projetada para retornar à Terra com as amostras coletadas no espaço.",
@@ -389,6 +389,6 @@
       "genesis"
     ],
     "fonte": "https://curator.jsc.nasa.gov/mic/stardust.cfm",
-    "data_consulta": "pendente"
+    "data_consulta": "2026-11-14"
   }
 ]
