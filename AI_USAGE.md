@@ -12,8 +12,8 @@ Usamos IA como assistente de programação, revisão e redação. As decisões d
 
 | Data | O que foi feito | Papel da IA | Papel da equipe |
 | --- | --- | --- | --- |
-| 14/11/2026 | Planejamento do projeto (conceito, telas, acessibilidade, modelo de dados, cronograma) | [confirmar: se uma IA ajudou a redigir o planejamento e qual] | Definiu o tema, o público (10 a 14 anos) e o escopo; decidiu cortes |
-| 14/11/2026 | `data/items.json` com 17 itens, textos em PT e EN, descrições visuais | [preencher: ferramenta] gerou e revisou textos | Definiu as regras (80 palavras, modelo fixo, 30 a 40 palavras na descrição visual). Conferência nas fontes: **em andamento** (ver abaixo) |
+| 14/11/2026 | Planejamento do projeto (conceito, telas, acessibilidade, modelo de dados, cronograma) | Redigir o planejamento em Markdown | Definiu o tema, o público (10 a 14 anos) e o escopo; decidiu cortes |
+| 14/11/2026 | `data/items.json` com 17 itens, textos em PT e EN, descrições visuais | Grok (xAI) gerou e revisou textos | Definiu as regras (80 palavras, modelo fixo, 30 a 40 palavras na descrição visual). Conferência nas fontes: **em andamento** (ver abaixo) |
 | 14/11/2026 | Estrutura em `index.html`, `css/` e `js/` | Separou e organizou o código | Revisou e testou |
 | 14/11/2026 | Correções no `app.js`: "por que ficou" e itens relacionados no card, botão Ouvir/Parar, alto contraste no canvas, erro de carregamento visível, `scripts/validate.py` | Claude revisou o código contra o planejamento e escreveu as correções | Aprovou e aplicou cada commit |
 | 14/11/2026 | Fonte Lexend local, tamanho do texto e espaçamento ajustáveis | Claude escreveu | Aprovou e aplicou |
