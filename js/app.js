@@ -59,6 +59,7 @@ let sp = ls("sp") === "1";
 let seenIds = new Set((() => { try { return JSON.parse(ls("seen") || "[]"); } catch (e) { return []; } })());
 let cur = { b: "", id: "" }, last = { b: "", id: "" };
 let cam = { lat: 15, lng: 0, k: 1 }, tw = null, pins = [];
+const nm = it => (lang === "en" && it.nome_en) || it.nome;
 const t = () => T[lang], g = (it, k) => it[k + "_" + lang], nf = n => lang === "pt" ? String(n).replace(".", ",") : String(n);
 
 const ATM = { terra: 0x6cc4ff, lua: 0xfff1c8, marte: 0xff8a5c };
@@ -919,12 +920,12 @@ function cardHtml(it) {
     .replace(/(O que é:|O que descobriu:|Onde está hoje:|What it is:|What it found:|Where it is today:)/g, "<br><b>$1</b>")
     .replace(/^<br>/, "");
   const img = `<div class="card-bg" aria-hidden="true" data-img="${it.imagem || ""}" data-id="${it.id}"></div>`;
-  let x = `<button id="cl" class="card-x" aria-label="${t().close}">✕</button><button id="ls" class="card-x card-ls" aria-label="${t().listen}">🔊</button><div class="card-scroll">${img}<div class="card-body"><h2 id="ct">${it.nome}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
+  let x = `<button id="cl" class="card-x" aria-label="${t().close}">✕</button><button id="ls" class="card-x card-ls" aria-label="${t().listen}">🔊</button><div class="card-scroll">${img}<div class="card-body"><h2 id="ct">${nm(it)}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
   if (g(it, "por_que_ficou")) x += `<p><b>${t().why}:</b> ${g(it, "por_que_ficou")}</p>`;
   if (it.lat != null) x += `<p>${fmtC(it.lat, it.lng)}<small>${t().pos}</small></p>`;
   if (d) x += `<p><b>${t().dist}:</b> ${nf(it.distancia_ua.toFixed(1))} UA (${it.data_distancia}) · ${t().sig} ${nf(Math.round(it.distancia_ua * 8.317 / 60))} h</p>`;
   const rl = (it.relacionados || []).map(r => ITEMS.find(i => i.id === r)).filter(Boolean);
-  if (rl.length) x += `<p><b>${t().rel}:</b></p><div class="row">${rl.map(r => `<button data-go="${r.corpo}/${r.id}">${r.nome}</button>`).join("")}</div>`;
+  if (rl.length) x += `<p><b>${t().rel}:</b></p><div class="row">${rl.map(r => `<button data-go="${r.corpo}/${r.id}">${nm(r)}</button>`).join("")}</div>`;
   return x + `<div class="row"></div></div></div>`;
 }
 
@@ -1009,12 +1010,12 @@ function render(quiet) {
   const gl = nb && nb !== "espaco", sealT = !nb ? tt.hcap(skyDate()) : gl ? tt.globe : tt.nsc;
   $("#seal").textContent = sealT;
   $("#seal").lang = lang;
-  $("#bc").innerHTML = `<li>${tt.all}</li>` + (nb ? `<li>${tt.nm[nb]}</li>` : "") + (it ? `<li>${it.nome}</li>` : "");
+  $("#bc").innerHTML = `<li>${tt.all}</li>` + (nb ? `<li>${tt.nm[nb]}</li>` : "") + (it ? `<li>${nm(it)}</li>` : "");
 
   if (nb) {
     $("#lh").textContent = `${tt.list}: ${tt.nm[nb]}`;
     $("#ul").innerHTML = ITEMS.filter(i => i.corpo === nb).map(i =>
-      `<li><button data-id="${i.id}"${i.id === ni ? ' aria-current="true"' : ""}>${i.nome}<small>${tt.st[i.status] || i.status} · ${i.ano}${seenIds.has(i.id) ? " · ✓ " + tt.visited : ""}</small></button></li>`
+      `<li><button data-id="${i.id}"${i.id === ni ? ' aria-current="true"' : ""}>${nm(i)}<small>${tt.st[i.status] || i.status} · ${i.ano}${seenIds.has(i.id) ? " · ✓ " + tt.visited : ""}</small></button></li>`
     ).join("");
   }
 
@@ -1030,7 +1031,7 @@ function render(quiet) {
     L.onclick = () => {
       const S = speechSynthesis;
       if (S.speaking) { S.cancel(); return; }
-      const u = new SpeechSynthesisUtterance([it.nome, g(it, "historia"), g(it, "descricao_visual"), t().last + ": " + g(it, "ultimo_sinal")].join(". "));
+      const u = new SpeechSynthesisUtterance([nm(it), g(it, "historia"), g(it, "descricao_visual"), t().last + ": " + g(it, "ultimo_sinal")].join(". "));
       u.lang = lang === "pt" ? "pt-BR" : "en-US";
       const done = () => { L.textContent = "🔊"; L.setAttribute("aria-label", t().listen); };
       u.onend = u.onerror = done;
@@ -1290,7 +1291,7 @@ function about() {
   $("#dx").setAttribute("aria-label", tt.close);
   D.lang = lang;
   $("#dl").innerHTML = ITEMS.map(i =>
-    `<li><b>${i.nome}</b><br>${tt.src}: ${i.fonte.startsWith("http") ? `<a href="${i.fonte}" target="_blank" rel="noopener">${i.fonte}</a>` : tt.pend}<br><small>${tt.cons}: ${i.data_consulta === "pendente" ? tt.pend : i.data_consulta}</small></li>`
+    `<li><b>${nm(i)}</b><br>${tt.src}: ${i.fonte.startsWith("http") ? `<a href="${i.fonte}" target="_blank" rel="noopener">${i.fonte}</a>` : tt.pend}<br><small>${tt.cons}: ${i.data_consulta === "pendente" ? tt.pend : i.data_consulta}</small></li>`
   ).join("");
   D.showModal();
 }

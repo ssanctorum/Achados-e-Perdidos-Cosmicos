@@ -20,7 +20,8 @@
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1967-035A",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA00514/PIA00514~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA00514/PIA00514~medium.jpg",
+    "nome_en": "Surveyor 3"
   },
   {
     "id": "apollo11_lm",
@@ -45,7 +46,8 @@
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/as11-40-5927/as11-40-5927~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/as11-40-5927/as11-40-5927~medium.jpg",
+    "nome_en": "Apollo 11 (Lunar Module descent stage)"
   },
   {
     "id": "alsep",
@@ -91,7 +93,8 @@
         20.1911,
         30.7723
       ]
-    ]
+    ],
+    "nome_en": "ALSEP (Apollo 12–17)"
   },
   {
     "id": "lrrr",
@@ -114,7 +117,8 @@
     ],
     "fonte": "https://ilrs.gsfc.nasa.gov/",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/as11-40-5952/as11-40-5952~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/as11-40-5952/as11-40-5952~medium.jpg",
+    "nome_en": "Laser retroreflector (Apollo)"
   },
   {
     "id": "apollo15_lm_lrv",
@@ -138,7 +142,8 @@
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1971-063C",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/as15-86-11603/as15-86-11603~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/as15-86-11603/as15-86-11603~medium.jpg",
+    "nome_en": "Apollo 15 (LM + lunar rover)"
   },
   {
     "id": "viking1",
@@ -162,7 +167,8 @@
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/planetary/viking.html",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA00563/PIA00563~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA00563/PIA00563~medium.jpg",
+    "nome_en": "Viking 1"
   },
   {
     "id": "viking2",
@@ -185,7 +191,8 @@
     ],
     "fonte": "https://nssdc.gsfc.nasa.gov/planetary/viking.html",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA00384/PIA00384~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA00384/PIA00384~medium.jpg",
+    "nome_en": "Viking 2"
   },
   {
     "id": "sojourner",
@@ -209,7 +216,8 @@
     ],
     "fonte": "https://mars.nasa.gov/mars-exploration/missions/pathfinder/",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA01120/PIA01120~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA01120/PIA01120~medium.jpg",
+    "nome_en": "Sojourner"
   },
   {
     "id": "spirit",
@@ -233,7 +241,8 @@
     ],
     "fonte": "https://mars.nasa.gov/mer/mission/status_spiritAll.html",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA04413/PIA04413~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA04413/PIA04413~medium.jpg",
+    "nome_en": "Spirit"
   },
   {
     "id": "opportunity",
@@ -257,7 +266,8 @@
     ],
     "fonte": "https://mars.nasa.gov/mer/mission/status_opportunityAll.html",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA17042/PIA17042~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA17042/PIA17042~medium.jpg",
+    "nome_en": "Opportunity"
   },
   {
     "id": "phoenix",
@@ -281,7 +291,8 @@
     ],
     "fonte": "https://science.nasa.gov/mission/mars-phoenix/",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA10246/PIA10246~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA10246/PIA10246~medium.jpg",
+    "nome_en": "Phoenix"
   },
   {
     "id": "pioneer10",
@@ -309,7 +320,8 @@
     "data_consulta": "2026-11-14",
     "imagem": "https://images-assets.nasa.gov/image/PIA00074/PIA00074~medium.jpg",
     "ra_h": 4.6,
-    "dec_deg": 16.5
+    "dec_deg": 16.5,
+    "nome_en": "Pioneer 10"
   },
   {
     "id": "pioneer11",
@@ -336,7 +348,8 @@
     "data_consulta": "2026-11-14",
     "imagem": "https://images-assets.nasa.gov/image/PIA00503/PIA00503~medium.jpg",
     "ra_h": 19.1,
-    "dec_deg": -8.0
+    "dec_deg": -8.0,
+    "nome_en": "Pioneer 11"
   },
   {
     "id": "voyager1",
@@ -363,7 +376,8 @@
     "data_consulta": "2026-11-14",
     "imagem": "https://images-assets.nasa.gov/image/PIA17036/PIA17036~medium.jpg",
     "ra_h": 17.2,
-    "dec_deg": 12.4
+    "dec_deg": 12.4,
+    "nome_en": "Voyager 1"
   },
   {
     "id": "voyager2",
@@ -390,7 +404,8 @@
     "data_consulta": "2026-11-14",
     "imagem": "https://images-assets.nasa.gov/image/PIA18182/PIA18182~medium.jpg",
     "ra_h": 20.0,
-    "dec_deg": -58.0
+    "dec_deg": -58.0,
+    "nome_en": "Voyager 2"
   },
   {
     "id": "genesis",
@@ -413,7 +428,8 @@
     ],
     "fonte": "https://science.nasa.gov/mission/genesis/",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA06354/PIA06354~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA06354/PIA06354~medium.jpg",
+    "nome_en": "Genesis (capsule)"
   },
   {
     "id": "stardust",
@@ -436,6 +452,7 @@
     ],
     "fonte": "https://curator.jsc.nasa.gov/mic/stardust.cfm",
     "data_consulta": "2026-11-14",
-    "imagem": "https://images-assets.nasa.gov/image/PIA05577/PIA05577~medium.jpg"
+    "imagem": "https://images-assets.nasa.gov/image/PIA05577/PIA05577~medium.jpg",
+    "nome_en": "Stardust (capsule)"
   }
 ]
