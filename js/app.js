@@ -10,7 +10,7 @@ const T = {
     pt: {
         back: "Voltar",
         all: "Tudo",
-        hint: "Toque num item para explorar",
+        hint: "Toque num planeta para explorar",
         items: "itens",
         item: "item",
         list: "Itens deixados",
@@ -33,6 +33,10 @@ const T = {
         pend: "pendente",
         scr: "Tela atual",
         stop: "Parar",
+        reset: "Zerar progresso",
+        explored: "explorados",
+        visited: "visitado",
+        prog: (a, b) => `Você explorou ${a} de ${b} itens`,
         fs: "Tamanho do texto",
         fs0: "Normal",
         fs1: "Grande",
@@ -72,6 +76,10 @@ const T = {
         pend: "pending",
         scr: "Current screen",
         stop: "Stop",
+        reset: "Reset progress",
+        explored: "explored",
+        visited: "visited",
+        prog: (a, b) => `You explored ${a} of ${b} items`,
         fs: "Text size",
         fs0: "Normal",
         fs1: "Large",
@@ -87,6 +95,7 @@ const T = {
     }
 };
 let lang = ls("lang") || ((navigator.language || "pt").startsWith("en") ? "en" : "pt"), pref = (k, q) => { const v = ls(k); return v == null ? matchMedia(q).matches : v === "1" }, hc = pref("hc", "(prefers-contrast: more)"), calm = pref("calm", "(prefers-reduced-motion: reduce)"), fsz = Math.min(2, Math.max(0, parseInt(ls("fsz")) || 0)), sp = ls("sp") === "1";
+let seenIds = new Set((() => { try { return JSON.parse(ls("seen") || "[]") } catch (e) { return [] } })());
 let cur = { b: "", id: "" }, last = { b: "", id: "" }, cam = { lat: 15, lng: 0, k: 1 }, tw, pins = [];
 const t = () => T[lang], g = (it, k) => it[k + "_" + lang], nf = n => lang === "pt" ? String(n).replace(".", ",") : String(n);
 const ORB = {
@@ -291,6 +300,10 @@ function render(quiet) {
     const prev = { ...cur };
     cur = { b: nb, id: ni };
     if (ni !== prev.id && "speechSynthesis" in window) speechSynthesis.cancel();
+    if (ni && !seenIds.has(ni)) {
+        seenIds.add(ni);
+        ls("seen", JSON.stringify([...seenIds]))
+    }
     const tt = t(), A = $("#app");
     if (nb !== prev.b || ni !== prev.id) {
         A.classList.remove("scan");
@@ -304,9 +317,10 @@ function render(quiet) {
     $("#le").setAttribute("aria-pressed", lang === "en");
     $("#hint").textContent = tt.hint;
     $("#hubb").innerHTML = `<svg class="cl cl-d" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><polyline points="16,68 38,36 62,62 84,30"/></svg><svg class="cl cl-m" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><polyline points="28,12 72,36 28,62 72,88"/></svg>` + BODIES.map(k => {
-        const n = ITEMS.filter(i => i.corpo === k).length;
-        return `<button class="p pl" data-b="${k}"><span class="orb" style="background:${ORB[k]}"></span><b>${tt.nm[k]}</b><small>${n} ${n===1?tt.item:tt.items}</small></button>`
+        const n = ITEMS.filter(i => i.corpo === k).length, dn = ITEMS.filter(i => i.corpo === k && seenIds.has(i.id)).length;
+        return `<button class="p pl" data-b="${k}"><span class="orb" style="background:${ORB[k]}"></span><b>${tt.nm[k]}</b><small>${n} ${n===1?tt.item:tt.items}</small><small>${dn}/${n} ${tt.explored}${n && dn === n ? " ✓" : ""}</small></button>`
     }).join("");
+    $("#prog").textContent = tt.prog(ITEMS.filter(i => seenIds.has(i.id)).length, ITEMS.length);
     $("#hub").hidden = !!nb;
     $("#list").hidden = !nb;
     A.classList.toggle("item", !!ni);
@@ -317,7 +331,7 @@ function render(quiet) {
     $("#bc").innerHTML = `<li>${tt.all}</li>` + (nb ? `<li>${tt.nm[nb]}</li>` : "") + (it ? `<li>${it.nome}</li>` : "");
     if (nb) {
         $("#lh").textContent = `${tt.list}: ${tt.nm[nb]}`;
-        $("#ul").innerHTML = ITEMS.filter(i => i.corpo === nb).map(i => `<li><button data-id="${i.id}"${i.id===ni?' aria-current="true"':""}>${i.nome}<small>${tt.st[i.status]||i.status} · ${i.ano}</small></button></li>`).join("")
+        $("#ul").innerHTML = ITEMS.filter(i => i.corpo === nb).map(i => `<li><button data-id="${i.id}"${i.id===ni?' aria-current="true"':""}>${i.nome}<small>${tt.st[i.status]||i.status} · ${i.ano}${seenIds.has(i.id) ? " · ✓ " + tt.visited : ""}</small></button></li>`).join("")
     }
     const K = $("#card");
     K.hidden = !it;
@@ -469,6 +483,11 @@ function about() {
     $("#dl").innerHTML = ITEMS.map(i => `<li><b>${i.nome}</b><br>${tt.src}: ${i.fonte.startsWith("http")?`<a href="${i.fonte}" target="_blank" rel="noopener">${i.fonte}</a>`:tt.pend}<br><small>${tt.cons}: ${i.data_consulta==="pendente"?tt.pend:i.data_consulta}</small></li>`).join("");
     D.showModal()
 }
+$("#rs").onclick = () => {
+    seenIds.clear();
+    ls("seen", "[]");
+    render(true)
+};
 $("#ad").onclick = about;
 $("#fd").onclick = about;
 $("#app").addEventListener("animationend", e => { if (e.animationName === "scan") e.currentTarget.classList.remove("scan") });

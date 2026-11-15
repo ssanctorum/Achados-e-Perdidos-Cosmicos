@@ -512,3 +512,7 @@ dialog li {
 html.hc #app::after {
     display: none;
 }
+#prog {
+    margin: 0;
+    font-size: .95rem;
+}
