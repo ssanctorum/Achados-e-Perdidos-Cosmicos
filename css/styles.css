@@ -240,6 +240,10 @@ html.hc #hint {
 #hdist {
     color: var(--ac2);
 }
+#hr {
+    pointer-events: auto;
+    margin-top: 2px;
+}
 html.hc #hdist {
     color: var(--tx);
 }
@@ -655,3 +659,39 @@ dialog[open] { display: flex; flex-direction: column; }
 dialog .card-x { top: 12px; right: 14px; }
 dialog::backdrop { background: #0009; }
 html.hc dialog { background: #000; border: 2px solid #fff; }
+
+/* Sem WebGL: hub vira uma fileira de botões HTML (lista, cards e Ouvir continuam) */
+html.nogl #cv,
+html.nogl .sparkles {
+    display: none;
+}
+html.nogl #hubb {
+    inset: 130px 16px auto 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+}
+html.nogl .pl {
+    position: static;
+    transform: none;
+    width: auto;
+    height: auto;
+    min-width: 150px;
+    min-height: 56px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 2px solid #ffffff55;
+    background: #2a1a4ad9;
+    pointer-events: auto;
+}
+html.nogl .pl::after {
+    display: none;
+}
+html.nogl .pl .lbl {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: none;
+    background: transparent;
+}

@@ -5,7 +5,7 @@ const $ = s => document.querySelector(s), ls = (k, v) => {
 const BODIES = ["terra", "lua", "marte", "espaco"], rad = Math.PI / 180;
 const T = {
   pt: {
-    back: "Voltar", all: "Tudo", hint: "Toque num planeta para explorar",
+    back: "Voltar", all: "Tudo", hint: "Toque num planeta para explorar. Arraste para girar.", hreset: "Restaurar vista",
     items: "itens", item: "item", list: "Itens deixados", close: "Fechar", listen: "Ouvir",
     ttl: "Achados e Perdidos Cósmicos",
     acc: "Acessibilidade", hc: "Alto contraste", calm: "Modo calmo (sem movimento nem brilho)",
@@ -14,7 +14,8 @@ const T = {
     nsc: "Fora de escala", dist: "Distância", sig: "sinal leva cerca de", last: "Último sinal",
     seen: "Aparência", src: "Fonte", cons: "consultado em",
     note: "Coordenadas aproximadas: fontes e épocas diferentes podem variar em alguns quilômetros.",
-    pend: "pendente", scr: "Tela atual", stop: "Parar", reset: "Zerar progresso",
+    pend: "pendente", scr: "Tela atual", stop: "Parar", reset: "Zerar progresso", traj: "Trajetória",
+    nogl: "Seu navegador não conseguiu iniciar os gráficos 3D. Os textos, as listas e o botão Ouvir continuam funcionando.",
     explored: "explorados", visited: "visitado",
     prog: (a, b) => `Você explorou ${a} de ${b} itens`,
     fs: "Tamanho do texto", fs0: "Normal", fs1: "Grande", fs2: "Muito grande",
@@ -27,7 +28,7 @@ const T = {
     E: "L", W: "O"
   },
   en: {
-    back: "Back", all: "All", hint: "Tap a planet to explore",
+    back: "Back", all: "All", hint: "Tap a planet to explore. Drag to rotate.", hreset: "Reset view",
     items: "items", item: "item", list: "Items left behind", close: "Close", listen: "Listen",
     ttl: "Cosmic Lost & Found",
     acc: "Accessibility", hc: "High contrast", calm: "Calm mode (no motion or glow)",
@@ -36,7 +37,8 @@ const T = {
     nsc: "Not to scale", dist: "Distance", sig: "signal takes about", last: "Last signal",
     seen: "Appearance", src: "Source", cons: "checked on",
     note: "Approximate coordinates: different sources and epochs can vary by a few kilometers.",
-    pend: "pending", scr: "Current screen", stop: "Stop", reset: "Reset progress",
+    pend: "pending", scr: "Current screen", stop: "Stop", reset: "Reset progress", traj: "Trajectory",
+    nogl: "Your browser could not start the 3D graphics. Texts, lists and the Listen button still work.",
     explored: "explored", visited: "visited",
     prog: (a, b) => `You explored ${a} of ${b} items`,
     fs: "Text size", fs0: "Normal", fs1: "Large", fs2: "Extra large",
@@ -150,6 +152,10 @@ let drag = {
   deepAngle0: 0,
   deepAngle: 0.6,
   deepElev: 0.55,
+  hubYaw: 0,
+  hubTilt: 0,
+  yaw0: 0,
+  tilt0: 0,
   pointers: new Map(), // pointerId -> {x,y}
   pinchDist0: 0,
   pinchZoom0: 1
@@ -159,6 +165,18 @@ let hubBaseY = 20;    // set on buildHub
 let deepRadius = 18;  // zoom for deep space
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+const HUB_TILT_MAX = 1.2; // ~69° a partir da vertical
+const hubDirty = () => {
+  const y = ((drag.hubYaw + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+  return Math.abs(y) > 1e-3 || drag.hubTilt > 1e-3 || Math.abs(hubZoom - 1) > 1e-3;
+};
+function resetHubView() {
+  drag.hubYaw = 0;
+  drag.hubTilt = 0;
+  hubZoom = 1;
+  applyHubCam();
+}
 
 function moonAt(a) {
   const e = hubBodies.terra.position;
@@ -189,11 +207,18 @@ function parkMoon() {
 
 function applyHubCam() {
   if (currentMode !== "hub" || !camera) return;
-  const y = hubBaseY / hubZoom;
-  camera.position.set(0, y, 0.01);
+  const r = hubBaseY / hubZoom, yw = drag.hubYaw, tl = clamp(drag.hubTilt, 0, HUB_TILT_MAX);
+  // tl = 0: vista de cima (como antes). yw gira em volta do Sol; tl inclina em direção ao horizonte.
+  camera.position.set(
+    Math.sin(yw) * Math.sin(tl) * r + Math.sin(yw) * 0.01,
+    Math.cos(tl) * r,
+    Math.cos(yw) * Math.sin(tl) * r + Math.cos(yw) * 0.01
+  );
+  camera.up.set(-Math.sin(yw), 0, -Math.cos(yw));
   camera.lookAt(0, 0, 0);
-  camera.up.set(0, 0, -1);
-  if (calm && hubMoonOrbit && hubBodies.lua && hubBodies.terra) parkMoon();
+  const hr = $("#hr");
+  if (hr) hr.hidden = !hubDirty();
+  if (calm && !hubDirty() && hubMoonOrbit && hubBodies.lua && hubBodies.terra) parkMoon();
   // re-place HTML buttons if planets exist
   if (hubBodies.terra && hubBodies.marte && hubBodies.lua) {
     const ed = (hubBodies.terra.userData.radius || 0.5) * 2;
@@ -261,7 +286,13 @@ function initThree() {
     return false;
   }
   mouse = new THREE.Vector2();
-  renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: !calm, alpha: true, powerPreference: "high-performance" });
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: !calm, alpha: true, powerPreference: "high-performance" });
+  } catch (e) {
+    console.error("WebGL indisponível:", e);
+    renderer = null;
+    return false;
+  }
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
   renderer.setClearColor(0x000000, 0);
   if (THREE.SRGBColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -512,7 +543,7 @@ function placeHubButtons(positions, sizes) {
     const v = pos.clone().project(camera);
     const x = (v.x * 0.5 + 0.5) * w;
     const y = (-v.y * 0.5 + 0.5) * h;
-    const z = Math.max(44, (d / (camera.position.y || 20)) * h * 0.55 + 18);
+    const z = Math.max(44, (d / (camera.position.length() || 20)) * h * 0.55 + 18);
     b.style.left = x + "px";
     b.style.top = y + "px";
     b.style.width = b.style.height = z + "px";
@@ -560,50 +591,6 @@ function recolorMarkers(id) {
 }
 
 // Miniature probe (low-poly): bus, dish, booms and RTG
-function makeProbe(id, on) {
-  const pioneer = id.startsWith("pioneer");
-  const mk = (color, extra = {}) => new THREE.MeshStandardMaterial({
-    color: hc ? 0xffffff : color, roughness: 0.55, metalness: 0.25,
-    emissive: on ? 0xff9a3c : 0x222222, emissiveIntensity: on ? 0.45 : 0.6, ...extra
-  });
-  const gold = mk(0xd9b45a), white = mk(0xe8f4ff, { side: THREE.DoubleSide });
-  const g = new THREE.Group();
-  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.1, pioneer ? 6 : 10), gold));
-  const r = pioneer ? 0.36 : 0.3;
-  const dish = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 8, 0, Math.PI * 2, Math.PI * 0.62, Math.PI * 0.38), white);
-  dish.position.y = 0.05 + r;
-  g.add(dish);
-  const feed = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.3, 6), white);
-  feed.position.y = 0.2;
-  g.add(feed);
-  const boom = (len, x) => {
-    const b = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, len, 6), gold);
-    b.rotation.z = Math.PI / 2;
-    b.position.x = x;
-    return b;
-  };
-  g.add(boom(0.55, 0.42), boom(0.6, -0.45));
-  const rtg = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.14, 8), gold);
-  rtg.rotation.z = Math.PI / 2;
-  rtg.position.x = 0.72;
-  g.add(rtg);
-  if (!pioneer) {
-    const scan = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 0.06), white);
-    scan.position.x = -0.78;
-    g.add(scan);
-  }
-  g.rotation.set(0.25, 0, 0.3);
-  const root = new THREE.Group();
-  root.add(g);
-  if (on) {
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.025, 8, 32), new THREE.MeshBasicMaterial({ color: 0xff9a3c }));
-    ring.rotation.x = Math.PI / 2;
-    root.add(ring);
-  }
-  root.scale.setScalar(on ? 1.7 : 1.2);
-  return root;
-}
-
 /* ---------- Body (globe) scene ---------- */
 function latLngToVec(lat, lng, R = 1) {
   const phi = (90 - lat) * rad;
@@ -923,6 +910,7 @@ function cardHtml(it) {
   let x = `<button id="cl" class="card-x" aria-label="${t().close}">✕</button><button id="ls" class="card-x card-ls" aria-label="${t().listen}">🔊</button><div class="card-scroll">${img}<div class="card-body"><h2 id="ct">${nm(it)}</h2><small>${t().st[it.status] || it.status} · ${it.ano}</small><p>${hs}</p><p><b>${t().seen}:</b> ${g(it, "descricao_visual")}</p><p><b>${t().last}:</b> ${g(it, "ultimo_sinal")}</p>`;
   if (g(it, "por_que_ficou")) x += `<p><b>${t().why}:</b> ${g(it, "por_que_ficou")}</p>`;
   if (it.lat != null) x += `<p>${fmtC(it.lat, it.lng)}<small>${t().pos}</small></p>`;
+  if (d && it.trajetoria) x += `<p><b>${t().traj}:</b> <span lang="${lang === "en" && it.trajetoria_en ? "en" : "pt-BR"}">${lang === "en" && it.trajetoria_en ? it.trajetoria_en : it.trajetoria}</span></p>`;
   if (d) x += `<p><b>${t().dist}:</b> ${nf(it.distancia_ua.toFixed(1))} UA (${it.data_distancia}) · ${t().sig} ${nf(Math.round(it.distancia_ua * 8.317 / 60))} h</p>`;
   const rl = (it.relacionados || []).map(r => ITEMS.find(i => i.id === r)).filter(Boolean);
   if (rl.length) x += `<p><b>${t().rel}:</b></p><div class="row">${rl.map(r => `<button data-go="${r.corpo}/${r.id}">${nm(r)}</button>`).join("")}</div>`;
@@ -951,7 +939,7 @@ function draw() {
   // Route to the correct Three.js scene
   if (!cur.b) {
     buildHub();
-    cv.style.cursor = "";
+    cv.style.cursor = "grab";
   } else if (cur.b === "espaco") {
     buildDeep();
     cv.style.cursor = "grab";
@@ -1049,15 +1037,18 @@ function render(quiet) {
     void cv.offsetWidth;
     cv.classList.add(nb ? "in" : "out");
     if (nb && nb !== "espaco") cam = { lat: DV[nb][0], lng: DV[nb][1], k: 1 };
-    draw();
+    if (renderer) draw();
   }
-  if (it && sitesOf(it).length && (nb !== prev.b || ni !== prev.id)) fly(sitesOf(it)[0][0], sitesOf(it)[0][1] + globeOff(), 1.25);
-  else if (nb && nb !== "espaco" && (prev.id || nb !== prev.b) && !it) fly(DV[nb][0], DV[nb][1], 1);
-  else draw();
+  if (!renderer) {
+    $("#err").textContent = tt.nogl;
+    $("#err").hidden = false;
+  } else if (it && sitesOf(it).length && (nb !== prev.b || ni !== prev.id)) fly(sitesOf(it)[0][0], sitesOf(it)[0][1] + globeOff(), 1.25);
+  else if (renderer && nb && nb !== "espaco" && (prev.id || nb !== prev.b) && !it) fly(DV[nb][0], DV[nb][1], 1);
+  else if (renderer) draw();
   if (currentMode === "body") recolorMarkers(ni);
 
   // Espaço profundo: gira a câmera para enquadrar a sonda escolhida (à direita do card)
-  if (it && nb === "espaco" && ni !== prev.id) {
+  if (renderer && it && nb === "espaco" && ni !== prev.id) {
     const m = markers.find(q => q.userData.id === ni);
     if (m) { drag.deepAngle = Math.atan2(m.position.x, m.position.z) - 0.2; applyDeepCam(); }
   }
@@ -1093,7 +1084,7 @@ function pinchDistance() {
 }
 
 function onPointerDown(e) {
-  if (!currentMode) return; // hub also needs pinch/zoom; drag rotate only body/deep
+  if (!currentMode) return;
   if (e.button != null && e.button !== 0) return;
   const p = pointerPos(e);
   drag.pointers.set(e.pointerId, { x: p.x, y: p.y });
@@ -1106,7 +1097,7 @@ function onPointerDown(e) {
     return;
   }
 
-  if (currentMode === "body" || currentMode === "deep") {
+  if (currentMode === "body" || currentMode === "deep" || currentMode === "hub") {
     drag.active = true;
     drag.moved = false;
     drag.x0 = p.x;
@@ -1114,6 +1105,8 @@ function onPointerDown(e) {
     drag.lat0 = cam.lat;
     drag.lng0 = cam.lng;
     drag.deepAngle0 = drag.deepAngle;
+    drag.yaw0 = drag.hubYaw;
+    drag.tilt0 = drag.hubTilt;
     cancelAnimationFrame(tw);
     targetCam = null;
     cv.setPointerCapture?.(e.pointerId);
@@ -1160,6 +1153,10 @@ function onPointerMove(e) {
   } else if (currentMode === "deep") {
     drag.deepAngle = drag.deepAngle0 - dx * 0.008;
     applyDeepCam();
+  } else if (currentMode === "hub") {
+    drag.hubYaw = drag.yaw0 - dx * 0.006;
+    drag.hubTilt = clamp(drag.tilt0 + dy * 0.005, 0, HUB_TILT_MAX);
+    applyHubCam();
   }
   e.preventDefault();
 }
@@ -1174,10 +1171,10 @@ function onPointerUp(e) {
   }
   const moved = drag.moved;
   drag.active = false;
-  cv.style.cursor = (currentMode === "body" || currentMode === "deep") ? "grab" : "";
+  cv.style.cursor = currentMode ? "grab" : "";
   try { cv.releasePointerCapture?.(e.pointerId); } catch (_) {}
 
-  if (!moved && pins.length) {
+  if (!moved && currentMode !== "hub" && pins.length) {
     const r = cv.getBoundingClientRect();
     const x = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) - r.left;
     const y = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) - r.top;
@@ -1205,6 +1202,21 @@ cv.addEventListener("touchstart", e => {
   if (currentMode) e.preventDefault();
 }, { passive: false });
 $("#back").onclick = up;
+$("#hr").onclick = resetHubView;
+cv.addEventListener("dblclick", () => { if (currentMode === "hub") resetHubView(); });
+document.addEventListener("keydown", e => {
+  if (currentMode !== "hub" || $("#dlg").open || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.target.closest && e.target.closest("#ap, input, select, textarea")) return;
+  const s = 0.12;
+  if (e.key === "ArrowLeft") drag.hubYaw += s;
+  else if (e.key === "ArrowRight") drag.hubYaw -= s;
+  else if (e.key === "ArrowUp") drag.hubTilt = clamp(drag.hubTilt - s, 0, HUB_TILT_MAX);
+  else if (e.key === "ArrowDown") drag.hubTilt = clamp(drag.hubTilt + s, 0, HUB_TILT_MAX);
+  else if (e.key === "Home") { resetHubView(); e.preventDefault(); return; }
+  else return;
+  e.preventDefault();
+  applyHubCam();
+});
 document.addEventListener("keydown", e => {
   if (e.key !== "Escape" || $("#dlg").open) return;
   if (!$("#ap").hidden) {
@@ -1217,6 +1229,21 @@ document.addEventListener("keydown", e => {
 });
 
 let vlOn = 0;
+// O VLibras guarda "aberto" no navegador e reabre sozinho na visita seguinte (ruim no celular, onde cobre a tela).
+function vlNoAutoOpen() {
+  try {
+    const k = "@vlibras-widget", raw = localStorage.getItem(k);
+    if (!raw || !raw.includes('"isOpen":true')) return;
+    try {
+      const o = JSON.parse(raw);
+      if (!o || !o.state) throw 0;
+      o.state.isOpen = false;
+      localStorage.setItem(k, JSON.stringify(o));
+    } catch (_) {
+      localStorage.setItem(k, raw.replace('"isOpen":true', '"isOpen":false'));
+    }
+  } catch (e) {}
+}
 function libras() {
   const on = lang === "pt";
   document.querySelectorAll("#libras,#vlibras-access-wrapper,#vlibras-app-root").forEach(e => e.hidden = !on);
@@ -1226,20 +1253,25 @@ function libras() {
   }
   if (vlOn) return;
   vlOn = 1;
+  vlNoAutoOpen();
   const sc = document.createElement("script");
   sc.src = "https://vlibras.gov.br/app/vlibras-plugin.js";
   sc.async = true;
   sc.onload = () => {
     try { new window.VLibras.Widget("https://vlibras.gov.br/app"); } catch (e) { return; }
-    let n = 0;
+    let n = 0, placed = false;
     const iv = setInterval(() => {
       const a = window.VLibrasWidget?.access;
-      if (a) {
+      if (a && !placed) {
+        placed = true;
         a.style.top = "auto";
         a.style.right = "16px";
         a.style.bottom = "calc(16px + env(safe-area-inset-bottom,0px))";
-        clearInterval(iv);
-      } else if (++n > 50) clearInterval(iv);
+      }
+      // se o widget abriu sozinho (auto), fecha; um toque do usuário no botão (auto=false) é respeitado
+      const root = document.getElementById("vlibras-app-root");
+      if (root && root.dataset.auto === "true" && root.dataset.active === "true") root.dataset.active = "false";
+      if (++n > 50) clearInterval(iv);
     }, 100);
   };
   document.body.appendChild(sc);
@@ -1316,7 +1348,8 @@ const bootDone = () => setTimeout(() => $("#boot").classList.add("done"), 500);
 
 /* Boot */
 if (!initThree()) {
-  $("#err").textContent = "WebGL / Three.js indisponível neste dispositivo.";
+  document.documentElement.classList.add("nogl");
+  $("#err").textContent = t().nogl;
   $("#err").hidden = false;
   bootDone();
 } else {
